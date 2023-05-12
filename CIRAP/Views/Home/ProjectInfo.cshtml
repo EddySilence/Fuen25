@@ -1,0 +1,176 @@
+﻿
+@model CIRAP.ViewModels.ProjectInfoViewModel
+
+@{
+}
+@section scripts{
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+}
+<style>
+    .inline {
+        display: inline-block;
+    }
+    label{
+        font-weight:600
+    }
+
+    .card-title{
+        font-weight: 800
+    }
+
+    .btn{
+        margin-top:20px
+    }
+    .infoGroup {
+        margin-top:5px
+    }
+</style>
+<div>
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="@Url.Content("~/Home/ProjectInfo")?projectID=@Model.Project_ID">工程基本資料</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="@Url.Content("~/Home/SubProjects")?projectID=@Model.Project_ID&activeSubProject=0">分項工程</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="@Url.Content("~/Home/TreeView")?projectID=@Model.Project_ID">分項圖示</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="@Url.Content("~/Home/RiskAssess")?projectID=@Model.Project_ID">風險評估</a>
+        </li>
+    </ul>
+</div>
+<div class="card-body">
+    <h5 class="card-title">工程基本資料</h5>
+    <form method="post" action="/Home/ProjectInfo">
+     @Html.HiddenFor(model => model.Project_ID, new { @Value = @Model.Project_ID })
+        @Html.HiddenFor(model => model.UserID, new { @Value = @Model.UserID })
+        <div>
+        <div class="form-group col-4 inline">
+            @Html.LabelFor(model => model.Project_Name)
+            @Html.EditorFor(model => model.Project_Name,new { htmlAttributes =new{@class = "form-control"}})
+        </div>
+        <div class="form-group col-7 inline">
+                @Html.LabelFor(model => model.Location)
+                @Html.EditorFor(model => model.Location,new { htmlAttributes =new{@class = "form-control"}})
+        </div>
+    </div>
+    <button class="btn btn-primary" id="about_btn" type="button" data-bs-toggle="collapse" data-bs-target="#relationMember" aria-expanded="false" aria-controls="relationMember">工程相關單位</button>
+    <div class="collapse" id="relationMember">
+            <div class="infoGroup">
+                <h6 class="card-title">工程業主</h6>
+                <div>
+                    <div class="form-group col-2 inline">
+                        @Html.EditorFor(model => model.Organizer_Principal,new { htmlAttributes =new{@class = "form-control",@placeholder="代表人"}})
+                    </div>
+                    <div class="form-group col-4 inline">
+                        @Html.EditorFor(model => model.Organizer_Addr,new { htmlAttributes =new{@class = "form-control",@placeholder="地址"}})
+                    </div>
+                    <div class="form-group col-2 inline">
+                        @Html.EditorFor(model => model.Organizer_PhoneNo,new { htmlAttributes =new{@class = "form-control",@placeholder="電話"}})
+                    </div>
+                    <div class="form-group col-3 inline">
+                        @Html.EditorFor(model => model.Organizer_Email,new { htmlAttributes =new{@class = "form-control",@placeholder="Email"}})
+                    </div>
+                </div>
+            </div>
+            <div class="infoGroup">
+                <h6 class="card-title">專案營建管理</h6>
+                <div>
+                    <div class="form-group col-2 inline">
+                        @Html.EditorFor(model => model.PCM_Principal,new { htmlAttributes =new{@class = "form-control",@name="PCM_Principal",@placeholder="代表人"}})
+                    </div>
+                    <div class="form-group col-4 inline">
+                        @Html.EditorFor(model => model.PCM_Addr,new { htmlAttributes =new{@class = "form-control",@id="PCM_Addr",@name="PCM_Addr",@placeholder="地址"}})
+                    </div>
+                    <div class="form-group col-2 inline">
+                        @Html.EditorFor(model => model.PCM_PhoneNo,new { htmlAttributes =new{@class = "form-control",@id="PCM_PhoneNo",@name="PCM_PhoneNo",@placeholder="電話"}})
+                    </div>
+                    <div class="form-group col-3 inline">
+                        @Html.EditorFor(model => model.PCM_Email,new { htmlAttributes =new{@class = "form-control",@id="PCM_Email",@name="PCM_Email",@placeholder="Email"}})
+                    </div>
+                </div>
+            </div>
+            <div class="infoGroup">
+            <h6 class="card-title">設計單位</h6>
+                    <div>
+                        <div class="form-group col-2 inline">
+                        @Html.EditorFor(model => model.Designer_Principal,new { htmlAttributes =new{@class = "form-control",@id="Designer_Principal",@name="Designer_Principal",@placeholder="代表人"}})
+                        </div>
+                        <div class="form-group col-4 inline">
+                        @Html.EditorFor(model => model.Designer_Addr,new { htmlAttributes =new{@class = "form-control",@id="Designer_Addr",@name="Designer_Addr",@placeholder="地址"}})
+                        </div>
+                        <div class="form-group col-2 inline">
+                        @Html.EditorFor(model => model.Designer_PhoneNo,new { htmlAttributes =new{@class = "form-control",@id="Designer_PhoneNo",@placeholder="電話"}})
+                        </div>
+                        <div class="form-group col-3 inline">
+                        @Html.EditorFor(model => model.Designer_Email,new { htmlAttributes =new{@class = "form-control",@name="Designer_Email",@placeholder="Email"}})
+                        </div>
+                    </div>
+                </div>
+            <div class="infoGroup">
+                <h6 class="card-title">監造單位</h6>
+                <div>
+                     <div class="form-group col-2 inline">
+                        @Html.EditorFor(model => model.Supervision_Principal,new { htmlAttributes =new{@class = "form-control",@id="Supervision_Principal",@name="Supervision_Principal",@placeholder="代表人"}})
+                     </div>
+                    <div class="form-group col-4 inline">
+                    @Html.EditorFor(model => model.Supervision_Addr,new { htmlAttributes =new{@class = "form-control",@id="Supervision_Addr",@name="Supervision_Addr",@placeholder="地址"}})
+                    </div>
+                    <div class="form-group col-2 inline">
+                    @Html.EditorFor(model => model.Supervision_PhoneNo,new { htmlAttributes =new{@class = "form-control",@id="Supervision_PhoneNo",@name="Supervision_PhoneNo",@placeholder="電話"}})
+                    </div>
+                    <div class="form-group col-3 inline">
+                    @Html.EditorFor(model => model.Supervision_Email,new { htmlAttributes =new{@class = "form-control",@id="Supervision_Email",@name="Supervision_Email",@placeholder="Email"}})
+                    </div>
+                </div>
+            </div>
+            <div class="infoGroup">
+                <h6 class="card-title">施工廠商</h6>
+                <div>
+                   <div class="form-group col-2 inline">
+                        @Html.EditorFor(model => model.Construction_Principal,new { htmlAttributes =new{@class = "form-control",@id="Supervision_Principal",@name="Supervision_Principal",@placeholder="代表人"}})
+                     </div>
+                    <div class="form-group col-4 inline">
+                    @Html.EditorFor(model => model.Construction_Addr,new { htmlAttributes =new{@class = "form-control",@id="Construction_Addr",@name="Construction_Addr",@placeholder="地址"}})
+                    </div>
+                    <div class="form-group col-2 inline">
+                    @Html.EditorFor(model => model.Construction_PhoneNo,new { htmlAttributes =new{@class = "form-control",@id="Construction_PhoneNo",@name="Construction_PhoneNo",@placeholder="電話"}})
+                    </div>
+                    <div class="form-group col-3 inline">
+                    @Html.EditorFor(model => model.Construction_Email,new { htmlAttributes =new{@class = "form-control",@id="Construction_Email",@name="Construction_Email",@placeholder="Email"}})
+                    </div>
+                </div>
+            </div>
+    </div>
+        <div class="infoGroup">
+            <h6 class="card-title">工程需求</h6>
+            <div class="form-group col-11">
+                <label for="projectName">構造形式</label>
+                @Html.EditorFor(model => model.Structure,new { htmlAttributes =new{@class = "form-control",@id="Structure",@name="Structure"}})
+            </div>
+            <div class="form-group">
+                <label for="projectName">造價</label>
+                @Html.EditorFor(model => model.ConstructionCost,new { htmlAttributes =new{@class = "form-control",@id="ConstructionCost",@name="ConstructionCost"}})
+            </div>
+            <div class="form-group">
+                <label for="projectName">用途</label>
+                @Html.EditorFor(model => model.UseFor,new { htmlAttributes =new{@class = "form-control",@id="UseFor",@name="UseFor"}})
+            </div>
+            <div class="form-group">
+                <label for="projectName">其他</label>
+                @Html.EditorFor(model => model.Notes,new { htmlAttributes =new{@class = "form-control",@id="Notes",@name="Notes"}})
+            </div>
+        </div>
+        <div class="infoGroup">
+            <h6 class="card-title">基地環境</h6>
+        </div>
+    <div>
+    <button type="submit" class="btn btn-primary col-4 align-content-center">送    出</button>
+    </div>
+</form>
+</div>
+
+

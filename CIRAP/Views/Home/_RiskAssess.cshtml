@@ -1,0 +1,914 @@
+﻿@model IEnumerable<CIRAP.ViewModels.RiskAssessViewModel>
+@{
+    var TasksList = ViewBag.taskList;
+    var ConstructionCost = ViewBag.ConstructionCost;
+}
+
+<div style="overflow-x:auto;">
+
+    <table class="table table-striped" id="RA_Table" style="table-layout:fixed;word-break:break-all;">
+
+        <thead>
+
+            <tr>
+                <th scope="col" colspan="3">作業拆解</th>
+                <th scope="col" colspan="4">危害辨識/風險分析</th>
+                <th scope="col" colspan="4">風險評量</th>
+                <th scope="col" colspan="2" rowspan="2">風險對策</th>
+                <th scope="col" colspan="1" rowspan="2">對策負責人</th>
+                <th scope="col" colspan="1" rowspan="2">審查確認</th>
+            </tr>
+
+            <tr>
+
+                <th scope="col">第一階作業</th>
+                <th scope="col">第二階作業</th>
+                <th scope="col">作業內容</th>
+                <th scope="col" colspan="2">潛在危險</th>
+                <th scope="col" colspan="2">可能的災害狀況</th>
+                <th scope="col">可能性</th>
+                <th scope="col">嚴重度</th>
+                <th scope="col">風險值</th>
+                <th scope="col">風險等級</th>
+
+            </tr>
+        </thead>
+        <colgroup>
+            <col width="140">
+            <col width="180">
+            <col width="250">
+            <col width="100">
+            <col width="18">
+            <col width="250">
+            <col width="18">
+            <col width="50">
+            <col width="50">
+            <col width="50">
+            <col width="50">
+            <col width="220">
+            <col width="18">
+            <col width="105">
+            <col width="55">
+        </colgroup>
+        <tbody id="tableBody">
+        </tbody>
+    </table>
+</div>
+
+@if (ConstructionCost >= 1000000000)
+{
+    <h1>10億以上</h1>
+    <div style="overflow-x:auto;">
+        <table class="table table-striped" id="RA_Table1" style="table-layout:fixed;word-break:break-all;">
+            <colgroup>
+                @*作業內容*@
+                <col width="80">
+                <col width="300">
+                <col width="60" />
+                <col width="60" />
+                @* 風險辨識*@
+                <col width="60" />
+                <col width="200" />
+                @* 現有防護設施*@
+                <col width="60" />
+                <col width="60" />
+                <col width="60" />
+                @*風險分析*@
+                <col width="40" />
+                <col width="40" />
+                <col width="40" />
+                <col width="40" />
+                @*風險評量*@
+                <col width="70" />
+                @*風險處理*@
+                <col width="100" />
+                <col width="40" />
+                <col width="300">
+                <col width="200">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th scope="col" colspan="4">作業內容</th>
+                    <th scope="col" colspan="2">風險辨識</th>
+                    <th colspan="3">現有防護設施</th>
+                    <th scope="col" colspan="4">風險分析</th>
+                    <th scope="col" colspan="1">風險評量</th>
+                    <th scope="col" colspan="4">風險處理</th>
+                </tr>
+                <tr>
+                    <th scope="col" rowspan="2">編號</th>
+                    <th scope="col" rowspan="2">
+                        作業步驟
+                        <p>(作業方法、程序、工具、材料等)</p>
+                    </th>
+                    <th scope="col" colspan="2" rowspan="1">
+                        作業條件
+                    </th>
+                    <th rowspan="2">危害類型</th>
+                    <th scope="col" rowspan="2">
+                        可能之風險狀況
+                        <p>(風險來源、起因、事件、可能後果等)</p>
+                    </th>
+                    <th scope="col" rowspan="2">
+                        工程控制
+                    </th>
+                    <th scope="col" rowspan="2">
+                        管理控制
+                    <th scope="col" rowspan="2">
+                        個人防護具
+                    </th>
+                    <th scope="col" rowspan="2">
+                        可能性
+                    </th>
+                    <th scope="col" rowspan="2">
+                        嚴重度
+                    </th>
+                    <th scope="col" rowspan="2">
+                        風險性
+                    </th>
+                    <th scope="col" rowspan="2">
+                        風險等級
+                    </th>
+                    <th scope="col" rowspan="2">
+                        (風險可否接受)
+                    </th>
+                    </th>
+
+                    <th scope="col" colspan="2" rowspan="1">
+                        風險對策
+
+                    </th>
+                    <th scope="col" rowspan="2">
+                        <p>執行成果摘記</p>
+                        <p>
+                            (修正設計或施工
+                            計畫、施工安全
+                            衛生設施圖說、
+                            規範、預算等)
+                        </p>
+                    </th>
+                    <th scope="col" rowspan="2">
+                        <p>成效確認</p>
+                        <p>
+                            (有否控制風險
+                            在可接受範圍 )
+                        </p>
+                    </th>
+                </tr>
+                <tr>
+                    <th rowspan="1">作業環境</th>
+                    <th rowspan="1">機具設備</th>
+                    <th rowspan="1">(處理風險與機會之措施)</th>
+                    <th rowspan="1">負責人</th>
+                </tr>
+                <tr>
+                    <th colspan="1">a</th>
+                    <th colspan="17" class="text-start">第一階作業名稱：</th>
+                </tr>
+                <tr>
+                    <th colspan="1">i</th>
+                    <th colspan="17" class="text-start">第二階作業名稱：</th>
+                </tr>
+                <tr>
+                    <th colspan="1">Aai01</th>
+                    <th colspan="1" class="text-start">作業步驟1</th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                </tr>
+                <tr>
+                    <th colspan="1">Aai01</th>
+                    <th colspan="1" class="text-start">作業步驟2</th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                </tr>
+                <tr>
+                    <th colspan="1">b</th>
+                    <th colspan="17" class="text-start">第一階作業名稱：</th>
+                </tr>
+                <tr>
+                    <th colspan="1">i</th>
+                    <th colspan="17" class="text-start">第二階作業名稱：</th>
+                </tr>
+                <tr>
+                    <th colspan="1">Aai01</th>
+                    <th colspan="1" class="text-start">作業步驟1</th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                </tr>
+                <tr style="height:45.8px;">
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                </tr>
+                <tr style="height:45.8px;">
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                </tr>
+                <tr style="height:45.8px;">
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                </tr>
+                <tr style="height:45.8px;">
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                </tr>
+                <tr style="height:45.8px;">
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                </tr>
+                <tr style="height:45.8px;">
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                    <th colspan="1"></th>
+                </tr>
+            </thead>
+
+
+        </table>
+    </div>
+}
+else if (ConstructionCost >= 50000000 && ConstructionCost <= 1000000000)
+{
+    <h1>5000萬以上未達10億</h1>
+    <div style="overflow-x:auto;height:500px">
+        <table class="table table-striped" id="RA_Table2" style="table-layout:fixed;word-break:break-all;margin:0px">
+            <thead>
+                <tr>
+                    <th colspan="1" rowspan="4" style="width:40px;">作業條件</th>
+                    <th colspan="2" rowspan="2" style="width:100px;height:80px">作業環境</th>
+                    <th colspan="2" rowspan="2" style="width:740px"></th>
+                    <th colspan="1" rowspan="4" style="width:40px;">防護設施</th>
+                    <th colspan="2" style="width:120px;height:53px">工程控制</th>
+                    <th colspan="2" style="width:740px"></th>
+                </tr>
+                <tr>
+                    <th colspan="2" rowspan="2" style="height:53px">管理控制</th>
+                    <th colspan="2" rowspan="2"></th>
+                </tr>
+                <tr>
+                    <th colspan="2" rowspan="2" style="height:80px">機具設備</th>
+                    <th colspan="2" rowspan="2"></th>
+                </tr>
+                <tr>
+                    <th colspan="2" style="height:53px">個人防護具</th>
+                    <th colspan="2"></th>
+                </tr>
+            </thead>
+        </table>
+        <table class="table" id="RA_Table3" style="table-layout:fixed;word-break:break-all;">
+            @*作業內容和風險辨識880px 剩下900px*@
+            <colgroup>
+                @*作業內容*@
+                <col width="400">
+                @* 風險辨識*@
+                <col width="60" />
+                <col width="18" />
+                <col width="340" />
+                <col width="18" />
+                @*風險分析*@
+                <col width="50" />
+                <col width="50" />
+                <col width="50" />
+                <col width="50" />
+                @*風險評量*@
+                <col width="70" />
+                @*風險處理*@
+                <col width="240" />
+                <col width="18" />
+                <col width="80" />
+                <col width="18" />
+                <col width="300">
+                <col width="230">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th scope="col" colspan="1">作業內容</th>
+                    <th scope="col" colspan="4">風險辨識</th>
+                    <th scope="col" colspan="4">風險分析</th>
+                    <th scope="col" colspan="1">風險評量</th>
+                    <th scope="col" colspan="6">風險處理</th>
+                </tr>
+
+                <tr class="top">
+                    <th scope="col" rowspan="2">
+                        作業步驟
+                        <p>(作業方法、程序、工具、材料等)</p>
+                    </th>
+                    <th rowspan="2" colspan="2">危害類型</th>
+                    <th scope="col" rowspan="2" colspan="2">
+                        可能之風險狀況
+                        <p>(風險來源、起因、事件、可能後果等)</p>
+                    </th>
+                    <th scope="col" rowspan="2">
+                        可能性
+                    </th>
+                    <th scope="col" rowspan="2">
+                        嚴重度
+                    </th>
+                    <th scope="col" rowspan="2">
+                        風險性
+                    </th>
+                    <th scope="col" rowspan="2">
+                        風險等級
+                    </th>
+                    <th scope="col" rowspan="2">
+                        (風險可否接受)
+                    </th>
+                    <th scope="col" colspan="4" rowspan="1">
+                        風險對策
+
+                    </th>
+                    <th scope="col" rowspan="2">
+                        <p>執行成果摘記</p>
+                        <p>
+                            (修正設計或施工
+                            計畫、施工安全
+                            衛生設施圖說、
+                            規範、預算等)
+                        </p>
+                    </th>
+                    <th scope="col" rowspan="2">
+                        <p>成效確認</p>
+                        <p>
+                            (有否控制風險
+                            在可接受範圍 )
+                        </p>
+                    </th>
+                </tr>
+                <tr>
+                    <th rowspan="1" colspan="2">(處理風險與機會之措施)</th>
+                    <th rowspan="1" colspan="2">負責人</th>
+                </tr>
+
+
+            </thead>
+            <tbody id="eddytablebody">
+            </tbody>
+
+        </table>
+    </div>
+}
+else
+{
+    <h1>未達5000萬</h1>
+    <div style="overflow-x:auto;">
+        <table class="table table-striped" id="RA_Table4" style="table-layout:fixed;word-break:break-all;margin:0px">
+            <thead>
+                <tr>
+                    <th colspan="1" rowspan="4" style="width:40px;">作業條件</th>
+                    <th colspan="2" rowspan="2" style="width:100px;height:80px">作業環境</th>
+                    <th colspan="2" rowspan="2" style="width:660px"></th>
+                    <th colspan="1" rowspan="4" style="width:40px;">防護設施</th>
+                    <th colspan="2" style="width:120px;height:53px">工程控制</th>
+                    <th colspan="2" style="width:740px"></th>
+                </tr>
+                <tr>
+                    <th colspan="2" rowspan="2" style="height:53px">管理控制</th>
+                    <th colspan="2" rowspan="2"></th>
+                </tr>
+                <tr>
+                    <th colspan="2" rowspan="2" style="height:80px">機具設備</th>
+                    <th colspan="2" rowspan="2"></th>
+                </tr>
+                <tr>
+                    <th colspan="2" style="height:53px">個人防護具</th>
+                    <th colspan="2"></th>
+                </tr>
+            </thead>
+        </table>
+        <table class="table table-striped" id="RA_Table5" style="table-layout:fixed;word-break:break-all;">
+            <colgroup>
+                @*作業名稱*@
+                <col width="400">
+                @*風險辨識*@
+                <col width="400">
+                @*風險分析及評量*@
+                <col width="100">
+                @*風險處理*@
+                <col width="400">
+                <col width="400">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th scope="col" colspan="1">作業名稱</th>
+                    <th scope="col" colspan="1">風險辨識</th>
+                    <th scope="col" colspan="1">風險分析及評量</th>
+                    <th scope="col" colspan="2">風險處理</th>
+                </tr>
+                <tr>
+                    <th scope="col">
+                        作業步驟
+                        <p>(作業方法、程序、工具、材料等)</p>
+                    </th>
+                    <th scope="col">
+                        可能之風險狀況
+                        <p>(風險來源、起因、事件、可能後果等)</p>
+                    </th>
+                    <th scope="col">
+                        <p>(風險可否接受)</p>
+                    </th>
+                    <th scope="col">
+                        風險對策
+                        <p>(風險來源、起因、事件、可能後果等)</p>
+                    </th>
+                    <th scope="col">
+                        成效確認
+                        <p>(風險來源、起因、事件、可能後果等)</p>
+                    </th>
+                </tr>
+                <tr>
+                    <td colspan="5" class="text-start">
+                        第一階作業名稱：
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="text-start">第二階作業名稱：</td>
+                </tr>
+                <tr>
+                    <td colspan="1" class="text-start">作業步驟1</td>
+                    <td colspan="1"></td>
+                    <td colspan="1"></td>
+                    <td colspan="1"></td>
+                    <td colspan="1"></td>
+                </tr>
+                <tr>
+                    <td colspan="1" class="text-start">作業步驟2</td>
+                    <td colspan="1"></td>
+                    <td colspan="1"></td>
+                    <td colspan="1"></td>
+                    <td colspan="1"></td>
+                </tr>
+
+            </thead>
+
+            <tbody id="eddytablebody">
+            </tbody>
+        </table>
+    </div>
+}
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+<script>
+    function exportExcel() {
+        let value = document.querySelector('#exportExcel').value;
+        switch (value) {
+            case '1':
+                exportExcel1();
+                console.log(value);
+                break;
+            case '2':
+                exportExcel2();
+                break;
+            case '3':
+                exportExcel3();
+                break;
+            default:
+                console.log('沒有下載');
+                break;
+        }
+    }
+
+    function exportExcel1() {
+
+        // 創建工作簿
+        var workbook = new ExcelJS.Workbook();
+        // 創建工作表
+        const worksheet = workbook.addWorksheet('未達5000萬');
+        worksheet.getRow(1).height = 25;
+        worksheet.getRow(2).height = 15;
+        worksheet.getRow(3).height = 15;
+        worksheet.getRow(4).height = 25;
+        worksheet.getRow(6).height = 100;
+        const cellwidth = [
+            5, 2, 13, 24, 25,
+            7, 3, 15, 43, 14
+        ];
+
+        const mergeCell = [
+            'A1:A4', 'B1:C2', 'B3:C4', 'D1:E2', 'D3:E4',
+            'F1:F4', 'G1:H1', 'I1:J1', 'G2:H3', 'I2:J3', 'G4:H4', 'I4:J4',
+            'A5:D5', 'A6:B6', 'C6:D6',
+            'F5:G5', 'F6:G6', 'H5:J5', 'H6:I6',
+            'A7:B7', 'A8:B8', 'A9:B9', 'A10:B10', 'A11:B11', 'A12:B12', 'A13:B13', 'A14:B14', 'A15:B15',
+            'C7:J7', 'C8:J8', 'C11:J11', 'C12:J12',
+            'C9:D9', 'C10:D10', 'C13:D13', 'C14:D14', 'C15:D15',
+            'F9:G9', 'F10:G10', 'F13:G13', 'F14:G14', 'F15:G15',
+        ];
+
+        const cellValue = [
+            { ps: 'A1', content: '作業條件' },
+            { ps: 'B1', content: '作業環境' },
+            { ps: 'B3', content: '機具設備' },
+
+            { ps: 'F1', content: '防護設施' },
+            { ps: 'G1', content: '工程控制' },
+            { ps: 'G2', content: '管理控制' },
+            { ps: 'G4', content: '個人防護具' },
+
+            { ps: 'A5', content: '作業名稱' },
+            { ps: 'E5', content: '風險辨識' },
+            { ps: 'F5', content: '風險分析及評量' },
+            { ps: 'H5', content: '風險處理' },
+
+            { ps: 'A6', content: '編號' },
+            { ps: 'C6', content: '作業步驟(作業方法、程序、工具、材料等)' },
+
+            { ps: 'E6', content: '可能之風險狀況(風險來源、起因、事件、可能後果等)' },
+
+            { ps: 'F6', content: '(風險可否接受)' },
+
+            { ps: 'H6', content: '風險對策(處理風險與機會之措施)及執行成果摘記(修正設計或施工計畫、安全衛生設施圖說、規範、預算等)' },
+            { ps: 'J6', content: '成效確認 (有否控制風險在可接受範圍)' },
+
+            { ps: 'A7', content: 'a' },
+            { ps: 'A8', content: 'i' },
+            { ps: 'A9', content: 'Aai01' },
+            { ps: 'A10', content: 'Aai02' },
+            { ps: 'A11', content: 'b' },
+            { ps: 'A12', content: 'i' },
+            { ps: 'A13', content: 'Abi01' },
+
+            { ps: 'C7', content: '第一階作業名稱：' },
+            { ps: 'C8', content: '第二階作業名稱：' },
+            { ps: 'C9', content: '作業步驟1' },
+            { ps: 'C10', content: '作業步驟2' },
+            { ps: 'C11', content: '第一階作業名稱：' },
+            { ps: 'C12', content: '第二階作業名稱：' },
+            { ps: 'C13', content: '作業步驟1' },
+        ];
+        //設置合併
+        for (let i = 0; i < mergeCell.length; i++) {
+            worksheet.mergeCells(mergeCell[i]);
+        }
+
+        //設置內容
+        for (let i = 0; i < cellValue.length; i++) {
+            worksheet.getCell(cellValue[i].ps).alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };//對齊方式
+            worksheet.getCell(cellValue[i].ps).value = cellValue[i].content;
+        }
+        //設置寬
+        for (let i = 1; i <= cellwidth.length; i++) {
+            worksheet.getColumn(i).width = cellwidth[i - 1];
+        }
+        //對齊方式
+        for (let i = 7; i <= 13; i++) {
+            worksheet.getCell(`C${i}`).alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+        }
+        // 下载 excel
+        downloadExcel(workbook, '未達5000萬');
+    }
+    function exportExcel2() {
+
+        // 創建工作簿
+        var workbook = new ExcelJS.Workbook();
+        // 創建工作表
+        const worksheet = workbook.addWorksheet('5000萬以上未達10億');
+        worksheet.getRow(1).height = 25;
+        worksheet.getRow(2).height = 15;
+        worksheet.getRow(3).height = 15;
+        worksheet.getRow(4).height = 25;
+        worksheet.getRow(6).height = 40;
+        const cellwidth = [
+            5, 2, 13, 24,
+            7, 25,
+            5, 2.5, 2.5, 5,
+            5, 7, 16, 5,
+            27, 10,
+        ];
+
+        const mergeCell = [
+            'A1:A4', 'B1:C2', 'B3:C4', 'D1:F2', 'D3:F4',
+            'G1:H4', 'I1:L1', 'M1:P1', 'I2:L3', 'M2:P3', 'I4:L4', 'M4:P4',
+            'A5:D5', 'A6:B7', 'C6:D7', 'E5:F5', 'E6:E7', 'F6:F7',
+            'G5:K5', 'G6:G7', 'H6:I7', 'J6:J7', 'K6:K7', 'L6:L7',
+            'M5:P5', 'M6:N6', 'O6:O7', 'P6:P7',
+            'A8:B8', 'A9:B9', 'A10:B10', 'A11:B11', 'A12:B12', 'A13:B13', 'A14:B14', 'A15:B15', 'A16:B16', 'A17:B17',
+            'C8:P8', 'C9:P9', 'C12:P12', 'C13:P13',
+            'H10:I10', 'H11:I11', 'H14:I14', 'H15:I15', 'H16:I16', 'H17:I17',
+            'C10:D10', 'C11:D11', 'C14:D14', 'C15:D15', 'C16:D16', 'C17:D17',
+        ];
+
+        const cellValue = [
+            { ps: 'A1', content: '作業條件' },
+            { ps: 'B1', content: '作業環境' },
+            { ps: 'B3', content: '機具設備' },
+
+            { ps: 'G1', content: '防護設施' },
+            { ps: 'I1', content: '工程控制' },
+            { ps: 'I2', content: '管理控制' },
+            { ps: 'I4', content: '個人防護具' },
+
+            { ps: 'A5', content: '作業內容' },
+            { ps: 'E5', content: '風險辨識' },
+            { ps: 'G5', content: '風險分析' },
+            { ps: 'L5', content: '風險評量' },
+            { ps: 'M5', content: '風險處理' },
+
+            { ps: 'A6', content: '編號' },
+            { ps: 'C6', content: '作業步驟(作業方法、程序、工具、材料等)' },
+
+            { ps: 'E6', content: '危害類型' },
+            { ps: 'F6', content: '可能之風險狀況(風險來源、起因、事件、可能後果等)' },
+
+            { ps: 'G6', content: '可能性' },
+            { ps: 'H6', content: '嚴重度' },
+            { ps: 'J6', content: '風險性' },
+            { ps: 'K6', content: '風險等級' },
+
+            { ps: 'L6', content: '(風險可否接受)' },
+
+            { ps: 'M6', content: '風險對策' },
+            { ps: 'M7', content: '(處理風險與機會之措施)' },
+            { ps: 'N7', content: '負責人' },
+            { ps: 'O6', content: '執行成果摘記 (修正設計或施工計畫、施工安全衛生設施圖說、規範、預算等)' },
+            { ps: 'P6', content: '成效確認 (有否控制風險在可接受範圍)' },
+
+            { ps: 'A8', content: 'a' },
+            { ps: 'A9', content: 'i' },
+            { ps: 'A10', content: 'Aai01' },
+            { ps: 'A11', content: 'Aai02' },
+            { ps: 'A12', content: 'b' },
+            { ps: 'A13', content: 'i' },
+            { ps: 'A14', content: 'Abi01' },
+
+            { ps: 'C8', content: '第一階作業名稱：' },
+            { ps: 'C9', content: '第二階作業名稱：' },
+            { ps: 'C10', content: '作業步驟1' },
+            { ps: 'C11', content: '作業步驟2' },
+            { ps: 'C12', content: '第一階作業名稱：' },
+            { ps: 'C13', content: '第二階作業名稱：' },
+            { ps: 'C14', content: '作業步驟1' },
+        ];
+        //設置合併
+        for (let i = 0; i < mergeCell.length; i++) {
+            worksheet.mergeCells(mergeCell[i]);
+        }
+
+        //設置內容
+        for (let i = 0; i < cellValue.length; i++) {
+            worksheet.getCell(cellValue[i].ps).alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };//對齊方式
+            worksheet.getCell(cellValue[i].ps).value = cellValue[i].content;
+        }
+        //設置寬
+        for (let i = 1; i <= cellwidth.length; i++) {
+            worksheet.getColumn(i).width = cellwidth[i - 1];
+        }
+        //對齊方式
+        for (let i = 8; i <= 14; i++) {
+            worksheet.getCell(`C${i}`).alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+        }
+        // 下载 excel
+        downloadExcel(workbook, '5000萬以上未達10億');
+
+    }
+    function exportExcel3() {
+        // 創建工作簿
+        var workbook = new ExcelJS.Workbook();
+        // 創建工作表
+        const worksheet = workbook.addWorksheet('Sheet1');
+
+        worksheet.getRow(2).height = 40;
+        const cellwidth = [
+            9, 60, 7, 7,
+            7, 20,
+            7, 7, 7,
+            5, 5, 5, 5,
+            7,
+            10, 5, 23, 10
+        ];
+
+        const mergeCell = [
+            'A1:D1', 'A2:A3', 'B2:B3', 'C2:D2',
+            'E1:F1', 'E2:E3', 'F2:F3', 'G1:I1', 'G2:G3', 'H2:H3', 'I2:I3',
+            'J1:M1', 'J2:J3', 'K2:K3', 'L2:L3', 'M2:M3',
+            'N2:N3',
+            'O1:R1', 'O2:P2', 'Q2:Q3', 'R2:R3',
+            'B4:R4', 'B5:R5', 'B8:R8', 'B9:R9',
+        ];
+
+        const cellValue = [
+            { ps: 'A1', content: '作業內容' },
+            { ps: 'E1', content: '風險辨識' },
+            { ps: 'G1', content: '現有防護設施' },
+            { ps: 'J1', content: '風險分析' },
+            { ps: 'N1', content: '風險評量' },
+            { ps: 'O1', content: '風險處理' },
+
+            { ps: 'A2', content: '編號' },
+            { ps: 'B2', content: '作業步驟(作業方法、程序、工具、材料等)' },
+            { ps: 'C2', content: '作業條件' },
+            { ps: 'C3', content: '作業環境' },
+            { ps: 'D3', content: '機具設備' },
+
+            { ps: 'E2', content: '危害類型' },
+            { ps: 'F2', content: '可能之風險狀況\n(風險來源、起因、事件、可能後果等)' },
+
+
+            { ps: 'G2', content: '工程控制' },
+            { ps: 'H2', content: '管理控制' },
+            { ps: 'I2', content: '個人防護具' },
+
+            { ps: 'J2', content: '可能性' },
+            { ps: 'K2', content: '嚴重度' },
+            { ps: 'L2', content: '風險性' },
+            { ps: 'M2', content: '風險等級' },
+
+            { ps: 'N2', content: '(風險可否接受)' },
+
+            { ps: 'O2', content: '風險對策' },
+            { ps: 'O3', content: '(處理風險與機會之措施)' },
+            { ps: 'P3', content: '負責人' },
+            { ps: 'Q2', content: '執行成果摘記 (修正設計或施工計畫、施工安全衛生設施圖說、規範、預算等)' },
+            { ps: 'R2', content: '成效確認 (有否控制風險在可接受範圍)' },
+
+            { ps: 'A4', content: 'a' },
+            { ps: 'A5', content: 'i' },
+            { ps: 'A6', content: 'Aai01' },
+            { ps: 'A7', content: 'Aai02' },
+            { ps: 'A8', content: 'b' },
+            { ps: 'A9', content: 'i' },
+            { ps: 'A10', content: 'Abi01' },
+
+            { ps: 'B4', content: '第一階作業名稱：' },
+            { ps: 'B5', content: '第二階作業名稱：' },
+            { ps: 'B6', content: '作業步驟1' },
+            { ps: 'B7', content: '作業步驟2' },
+            { ps: 'B8', content: '第一階作業名稱：' },
+            { ps: 'B9', content: '第二階作業名稱：' },
+            { ps: 'B10', content: '作業步驟1' },
+        ];
+        //設置合併
+        for (let i = 0; i < mergeCell.length; i++) {
+            worksheet.mergeCells(mergeCell[i]);
+        }
+
+        //設置內容
+        for (let i = 0; i < cellValue.length; i++) {
+            worksheet.getCell(cellValue[i].ps).alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };//對齊方式
+            worksheet.getCell(cellValue[i].ps).value = cellValue[i].content;
+        }
+        //設置寬
+        for (let i = 1; i <= cellwidth.length; i++) {
+            worksheet.getColumn(i).width = cellwidth[i - 1];
+        }
+        //對齊方式
+        for (let i = 4; i <= 10; i++) {
+            worksheet.getCell(`B${i}`).alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+        }
+
+        // 下载 excel
+        downloadExcel(workbook, '10億以上');
+    }
+
+    function downloadExcel(workbook, fileName) {
+        workbook.xlsx.writeBuffer().then((buf) => {
+            let blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8' });
+            const downloadElement = document.createElement('a')
+            let href = window.URL.createObjectURL(blob)
+            downloadElement.href = href
+            downloadElement.download = `${fileName}.xlsx`; // 文件名字
+            document.body.appendChild(downloadElement)
+            downloadElement.click()
+            document.body.removeChild(downloadElement) // 下載完成移除元素
+            window.URL.revokeObjectURL(href) // 釋放掉blob物件
+        });
+    }
+</script>

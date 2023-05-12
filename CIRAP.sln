@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CIRAP", "CIRAP\CIRAP.csproj", "{4414FDB9-E023-401E-A2E0-99657EB4BF81}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4414FDB9-E023-401E-A2E0-99657EB4BF81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4414FDB9-E023-401E-A2E0-99657EB4BF81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4414FDB9-E023-401E-A2E0-99657EB4BF81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4414FDB9-E023-401E-A2E0-99657EB4BF81}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {46C2CF0D-369C-4491-97C6-CCC77953D49B}
+	EndGlobalSection
+EndGlobal

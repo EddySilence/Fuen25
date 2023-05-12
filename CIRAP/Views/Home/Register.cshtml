@@ -1,0 +1,124 @@
+﻿@model CIRAP.ViewModels.RegisterVierwModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<h1>註冊</h1>
+
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Account" class="control-label"></label>
+                <input asp-for="Account" class="form-control" id="account"/>
+                <span asp-validation-for="Account" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control" id="password"/>
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" id="email"/>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-2">
+                <button type="button" class="btn btn-primary" onclick=registerSubmit()>註冊</button>
+            </div>
+    </div>
+</div>
+<button id="test">測試用</button>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitleData"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="modalBodyData"></p>
+                <label for="validateCode">驗證碼</label>
+                <input class="form-control" id="validateCode" />
+                <p id="validateError"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick=verifySubmit()>驗證</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+
+        function registerSubmit() {
+            //發送註冊
+            let account = $('#account').val();
+            let password = $('#password').val();
+            let email = $('#email').val();
+            $.ajax({
+                type: "post",
+                url: "@Url.Action("Register","Home")",
+                data: {
+                    Account: account,
+                    Password: password,
+                    email: email
+                },
+                success: function (data) {
+                    console.log(data);
+                    if (data.data == "成功") {
+                        console.log("我成功了");
+                        var myModal = new bootstrap.Modal($('#exampleModal'));
+                        myModal.show();
+                        $('#modalTitleData').text("驗證");
+                        $('#modalBodyData').text("請去信箱查收驗證碼");
+                    }
+                },
+                error: function (data) {
+                    console.log(data);
+                    if (data.data = "失敗") {
+
+                    }
+                }
+            });
+
+            
+        }
+        function verifySubmit() {
+            let account = $('#account').val();
+            let validateCode = $('#validateCode').val();
+            $.ajax({
+                type: "post",
+                url: "@Url.Action("verify","Home")",
+                data: {
+                    account: account,
+                    ValidateCode: validateCode,
+                },
+                success: function (data) {
+                    console.log(data);
+                    if (data.data = "成功") {
+                        $('#validateError').text('驗證成功，兩秒後跳回登入頁面');
+                        setTimeout(function () {
+                            window.location.href = "/home/login";
+                        }, 3000);
+                    }
+                },
+                error: function (data) {
+                    console.log(data);
+                    if (data.data = "失敗") {
+                        $('#validateError').text('驗證失敗');
+                    }
+                }
+            });
+        }
+    </script>
+
+}

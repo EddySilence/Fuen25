@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+ <style>
+    .card-body {
+  border-radius:5px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+</style>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] 營建風險評估工具 - 勞動部職業安全衛生署</title>
+   @* <link rel="stylesheet" href="~/css/main.css" />
+    <link rel="stylesheet" href="~/css/theme1.css" />*@
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/CIRAP.styles.css" asp-append-version="true" />
+    
+    <!-- Bootstrap Font Icon CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a asp-area="" asp-controller="Home" asp-action="Index"><img src="~/image/logo_0.png" class="logo" alt="logo"></a>
+                <img src="~/image/headerbg.jpg" class="bg" alt="headerbg">
+                <a class="navbar-brand text-light" asp-area="" asp-controller="Home" asp-action="Index">營建風險評估工具</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+    <div class="container" id="login">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top navbar-fixed-bottom">
+        <div id="left">
+            <p>總機：(02)8995-6666　FAX：(02)8995-6665</p>
+            <p>北區中心：(02)8995-6700　中區中心：(04)2255-0633　南區中心：(07)235-4861</p>
+            <p>廉政署檢舉專線：0800-286586　勞檢反映專線:(02)8978-8117</p>
+            <p>勞工健康服務中心全國免費諮詢專線：0800-068580</p>
+            <p>地址：242030 新北市新莊區中平路439號南棟11樓 [ <a href="https://www.osha.gov.tw/48110/48111/48121/49566/" target="_blank"> 地圖</a> ]</p>
+            <p>服務時間：週一至週五 上午8:30-12:30，下午13:30-17:30</p>
+            <br>
+            <p>勞動部職業安全衛生署版權所有</p>
+        </div>
+
+    </footer>
+  @*  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>*@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

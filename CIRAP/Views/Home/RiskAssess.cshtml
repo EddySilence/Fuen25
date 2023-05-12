@@ -1,0 +1,1186 @@
+﻿@model IEnumerable<CIRAP.ViewModels.RiskAssessViewModel>
+
+@{
+    var projectID = ViewBag.projectID;
+    var ptRaList = ViewBag.ProjectRisksList;
+    var ConstructionCost = ViewBag.ConstructionCost;
+}
+@section Styles{
+    <style>
+
+        table {
+            table-layout: fixed;
+            border-spacing: 0px;
+            border-collapse: separate;
+        }
+
+        th {
+            text-align: center;
+            border: 2px solid black;
+            position: static;
+            display: table-cell;
+        }
+
+        .top {
+            position: sticky;
+            top: -2px;
+            background-color: white;
+        }
+
+        .selectgroup-input:checked + .selectgroup-button {
+            border-color: #004660;
+            color: #004660;
+            background: rgba(0,70,96,0.2);
+            z-index: 1;
+        }
+
+        .selectgroup-pills .selectgroup-button {
+            border-radius: 50px !important;
+            margin-top: 10px;
+        }
+
+        .selectgroup-input {
+            opacity: 0;
+            position: absolute;
+            z-index: -1;
+            top: 0;
+            left: 0;
+        }
+
+        .selectgroup-button {
+            display: block;
+            vertical-align: middle;
+            -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            border-radius: 3px;
+            color: #9aa0ac;
+            font-size: 14px;
+            min-width: 2.375rem;
+            border: 1px solid rgba(0,40,100,0.12);
+            padding: 5px 15px;
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+            line-height: 1.5rem;
+            text-align: center;
+        }
+
+        .RA_Level-text {
+            font-weight: 900;
+            font-size: 20px;
+        }
+    </style>
+}
+<div class="wrapper">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link" href="@Url.Content("~/Home/ProjectInfo")?projectID=@projectID">工程基本資料</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="@Url.Content("~/Home/SubProjects")?projectID=@projectID">分項工程</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="@Url.Content("~/Home/TreeView")?projectID=@projectID">分項圖示</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" href="@Url.Content("~/Home/RiskAssess")?projectID=@projectID">風險評估</a>
+        </li>
+    </ul>
+</div>
+
+<div class="card-body">
+    <h5 class="card-title">風險評估</h5>
+    <div hidden id="projectID">@projectID</div>
+    <ul class="nav nav-tabs" id="subProjects">
+        @{
+            int count = 0;
+            var activestring = "";
+            bool bSkipFlag = false;
+            var subprojectsArr = new List<string>();
+
+            foreach (var item in Model)
+            {
+                bSkipFlag = false;
+                if (count == 0)
+                    activestring = "active";
+                foreach (var item2 in subprojectsArr)
+                {
+                    if (item2.Equals(item.SubProjectName))
+                    {
+                        bSkipFlag = true;
+                        break;
+                    }
+                }
+                if (bSkipFlag)
+                    continue;
+                subprojectsArr.Add(@item.SubProjectName);
+                <li class="nav-item">
+                    <a class="nav-link @activestring" data-subprojectid="@item.SubProjectID">@item.SubProjectName</a>
+                </li>
+                activestring = "";
+                count++;
+            }
+        }
+    </ul>
+
+
+    <div class="card-body" id="divPartial">
+        @await Html.PartialAsync("_RiskAssess",Model)
+
+    </div>
+    <div style="margin-top:20px">
+        <button type="submit" class="btn btn-primary col-4 align-content-center" onclick="submitRiskAssess()">送    出</button>
+        <button type="submit" class="btn btn-primary col-4 align-content-center" onclick="exportExcel()">匯出excel</button>
+        <select id="exportExcel">
+            <option value="1" selected>未達5000萬</option>
+            <option value="2">5000萬以上未達10億</option>
+            <option value="3">10億以上</option>
+        </select>
+        <button type="submit" class="btn btn-primary col-4 align-content-center">收集資料</button>
+    </div>
+
+</div>
+<div class="modal fade" id="setRiskModal" tabindex="-1" aria-labelledby="setRiskModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="asetRiskModalTitle" data-action="">測試</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <select class="form-select" aria-label="Default select example" id="taskOptions">
+                </select>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="close_btn">關  閉</button>
+                <button type="button" class="btn btn-primary" id="confirmed_btn">確  認</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editPhModal" tabindex="-1" aria-labelledby="editPhModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="editPhModalTitle">潛在危險</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div id="editPhModalContext" style="margin-left:20px"></div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="selectgroup selectgroup-pills">
+                        <label class="selectgroup-item">
+                            <input type="checkbox" name="value" value="HTML" class="selectgroup-input" checked="">
+                            <span class="selectgroup-button">火災</span>
+                        </label>
+                        <label class="selectgroup-item">
+                            <input type="checkbox" name="value" value="CSS" class="selectgroup-input" checked="">
+                            <span class="selectgroup-button">感電</span>
+                        </label>
+                        <label class="selectgroup-item">
+                            <input type="checkbox" name="value" value="PHP" class="selectgroup-input">
+                            <span class="selectgroup-button">墜落</span>
+                        </label>
+                        <label class="selectgroup-item">
+                            <input type="checkbox" name="value" value="JavaScript" class="selectgroup-input">
+                            <span class="selectgroup-button">物體飛落</span>
+                        </label>
+                        <label class="selectgroup-item">
+                            <input type="checkbox" name="value" value="Ruby" class="selectgroup-input">
+                            <span class="selectgroup-button">物體倒塌</span>
+                        </label>
+                        <label class="selectgroup-item">
+                            <input type="checkbox" name="value" value="Ruby" class="selectgroup-input">
+                            <span class="selectgroup-button">被夾</span>
+                        </label>
+                        <label class="selectgroup-item">
+                            <input type="checkbox" name="value" value="C++" class="selectgroup-input">
+                            <span class="selectgroup-button">被撞</span>
+                        </label>
+                        <label class="selectgroup-item">
+                            <input type="checkbox" name="value" value="C++" class="selectgroup-input">
+                            <span class="selectgroup-button">跌倒</span>
+                        </label>
+                        <label class="selectgroup-item">
+                            <input type="checkbox" name="value" value="C++" class="selectgroup-input">
+                            <span class="selectgroup-button">其他</span>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="close_btn">關  閉</button>
+                <button type="button" class="btn btn-primary" onclick="editPhModalconfirmed()">確  認</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editModal2" tabindex="-1" aria-labelledby="editModal2" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="editModal2Title"></h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div id="editModal2Context" style="margin-left:20px"></div>
+            <div class="modal-body">
+                <div class="form-outline">
+                    <textarea class="form-control" id="textAreaEditModal2" rows="4"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="close_btn">關  閉</button>
+                <button type="button" class="btn btn-primary" onclick="editModal2confirmed()">確  認</button>
+            </div>
+        </div>
+    </div>
+</div>
+//新增負責人
+<div class="modal fade" id="createCMmodel" tabindex="-1" aria-labelledby="createCMmodel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="createCMmodelTitle">新增對策負責人</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div id="editModal2Context" style="margin-left:20px"></div>
+            <div class="modal-body">
+                <div class="form-outline">
+                    <label for="FormControlInput1" class="form-label">名稱</label>
+                    <input type="text" class="form-control" id="cmNameInput">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="close_btn">關  閉</button>
+                <button type="button" class="btn btn-primary" onclick="createCMPersionConfirmed()">確  認</button>
+            </div>
+        </div>
+    </div>
+</div>
+//編輯負責人
+<div class="modal fade" id="editCMPersion" tabindex="-1" aria-labelledby="editCMPersion" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" data-action="">編輯負責人</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <select class="form-select" aria-label="Default select example" id="editCKPersionOption">
+                    <option value="其他">其他</option>
+                </select>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="close_btn">關  閉</button>
+                <button type="button" class="btn btn-primary" onclick="editCMPersionConfirmed()">確  認</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<template class="item">
+    <tr>
+        <td scope="col" hidden class="id"></td>
+        <td scope="col" hidden class="TaskID"></td>
+        <td scope="col" class="Task1Step"></td>
+        <td scope="col" class="Task2Step"></td>
+        <td scope="col" class="TaskContent"></td>
+        <td scope="col" class="PotentialHazard"></td>
+        <td scope="col"><i class="edit_ph" onclick="openRAphModel(this)"></i></td>
+
+        <td scope="col" class="PossibleSituation"></td>
+        <td scope="col"><i class="edit_ps bi bi-pencil-fill" onclick="ClickEdit_Possible(this)"></i></td>
+        <td scope="col" class="RA_Possibility">
+            <select class="raPossibility-select" onchange="getRaPossibilitySelect(this)"
+                    style="width:40px;">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </td>
+        <td scope="col" class="RA_Severity">
+            <select class="raSeverity-select" onchange="getRaSeveritySelect(this)"
+                    style="width:40px;">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        </td>
+        <td scope="col" class="RA_RiskValue"></td>
+        <td scope="col" class="RA_Level">
+            12
+        </td>
+        <td scope="col" class="RiskCM">AGREQGTWHTRWJRJYJYEJYET</td>
+        <td scope="col"><i class="edit_rcm bi bi-pencil-fill" onclick="ClickEdit_RiskCM(this)"></i></td>
+        <td scope="col" class="CM_Person">
+            <select class="raCM_Person-select"
+                    style="width:95px;" onchange="getRaCM_PersonSelect(this)" onclick="getRaCM_PersonSelectClick(this)">
+                <option>ABC</option>
+                <option value="99">新增負責人</option>
+            </select>
+
+        </td>
+        <td scope="col" class=""></td>
+    </tr>
+</template>
+
+<div class="modal fade" id="addRAPhModal" tabindex="-1" aria-labelledby="addRAPhModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" data-action="">潛在危險</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <select class="form-select" aria-label="Default select example" id="raPHOptions" onchange="addRAPh(this)">
+                </select>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="close_btn">關  閉</button>
+                <button type="button" class="btn btn-primary" onclick="btnAddRAPhConfrimed(this)">確  認</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    const ConstructionCost = @ConstructionCost;
+
+    document.addEventListener("DOMContentLoaded", () => {
+
+        //alert('DOMContentLoaded');
+        var btns =
+            $("#subProjects .nav-item .nav-link");
+
+        for (var i = 0; i < btns.length; i++) {
+            btns[i].addEventListener("click",
+                function () {
+                    getRiskAssessInfo(this)
+                });
+        }
+
+    });
+    //function btnAddRAPhConfrimed(obj) {
+    //    var e = document.getElementById("raPHOptions");
+    //    console.log(e);
+    //    var value = e.value;
+    //    console.log(value);
+    //    var rowEl = document.getElementsByClassName('selectedPhItem')[0];
+    //    console.log(rowEl);
+    //    $.ajax({
+    //        type: "post",
+    //        url: "@Url.Action("SetRiskAssessInfo","Home")",
+    //        data: {
+    //            taskId: rowEl.querySelectorAll(".TaskID")[0].innerHTML,
+    //            potential_hazard: value,
+    //        },
+    //        success: function (result) {
+    //            $('#addRAPhModal').modal('hide');
+    //            $(".selectedPhItem").removeClass('selectedPhItem')
+    //        },
+    //        error: function (xhr, exception) {
+    //            alert('getTaskInfo error');
+    //            return false;
+    //        }
+    //    });
+    //}
+    function initRaPHOptions(obj) {
+        $('#raPHOptions').find('option')
+            .remove()
+            .end()
+        var taskID = obj.parentElement.parentElement.querySelectorAll(".TaskID")[0].innerText;
+        var ph = document.getElementById('tableBody').querySelectorAll(".PotentialHazard");
+        var optionsArr = ["火災", "感電", "墜落", "物體飛落", "物體倒塌", "被夾", "被撞", "跌倒"];
+        for (var j = 0; j < optionsArr.length; j++) {
+            for (var i = 0; i < ph.length; i++) {
+                if (ph[i].parentElement.querySelectorAll(".TaskID")[0].innerText.includes(taskID)) {
+
+                    if (optionsArr[j].includes(ph[i].innerText) && ph[i].innerText.length > 0) {
+                        break;
+
+                    }
+                }
+                if (i == ph.length - 1) {
+                    $('#raPHOptions').append(new Option(optionsArr[j]));
+                }
+            }
+
+
+        }
+
+    }
+    function openRAphModel(obj) {
+        $(obj).parent().parent().addClass('selectedPhItem');
+        initRaPHOptions(obj);
+        $('#addRAPhModal').modal('show');
+    }
+    function createCMmodelconfirmed() {
+        var node2 = document.getElementById('projectID');
+        var pjid = node2.textContent || node2.innerText;
+        var cmName = document.getElementById('cmNameInput').value;
+        $.ajax({
+            type: "post",
+            url: "@Url.Action("setRiskAssessCMname","Home")",
+            data: {
+                projectID: pjid,
+                cmName: cmName,
+            },
+            success: function (result) {
+
+                reloadRaCmPersonOptions(cmName)
+                $(".selectedCMpersionItem option").filter(function () {
+                    return $(this).text() == cmName;
+                }).prop('selected', true);
+                $(".selectedCMpersionItem").removeClass('selectedCMpersionItem')
+            },
+            error: function (xhr, exception) {
+                alert('getTaskInfo error');
+                return false;
+            }
+        });
+        $('#createCMmodel').modal('hide');
+    }
+    function reloadRaCmPersonOptions(name) {
+        $('.selectedCMpersionItem').find('option')
+            .remove()
+            .end()
+        $('.selectedCMpersionItem').append(new Option(name, "1"));
+        $('.selectedCMpersionItem').append(new Option('ABC', "1"));
+        $('.selectedCMpersionItem').append(new Option('GGYYEE', "1"));
+        $('.selectedCMpersionItem').append(new Option("新增負責人", "99"));
+
+    }
+    function getRaCM_PersonSelectClick(obj) {
+        $('.selectedCMpersionItem').removeClass('selectedCMpersionItem')
+        $(obj).addClass('selectedCMpersionItem');
+    }
+    function getRaCM_PersonSelect(obj) {
+        var pEleNode = obj.parentElement;
+        var raCM_PersonValue = pEleNode.parentElement.querySelectorAll(".raCM_Person-select")[0].value;
+        if (raCM_PersonValue == "99")
+            $('#createCMmodel').modal('show');
+    }
+    function getRiskAssessInfo(obj) {
+        var node2 = document.getElementById('projectID');
+        var id = node2.textContent || node2.innerText;
+        $("#subProjects .nav-item .active").removeClass("active");
+        obj.className += " active";
+        var subpjDataId = $('#subProjects .active').data('subprojectid');
+        var subpjName = $('#subProjects .active')[0].textContent;
+        $.ajax({
+            type: "post",
+            url: "@Url.Action("getRiskAssessInfo","Home")",
+            data: {
+                projectID: id,
+                subProjectId: subpjDataId,
+                subProjectName: subpjName,
+            },
+            success: function (result) {
+                getdata()
+                fillRATable(result);
+
+            },
+            error: function (xhr, exception) {
+                alert('getTaskInfo error');
+                return false;
+            }
+        });
+    }
+    var getTemplate = function () {
+        var html = $("template.item").html();
+        return $(html).clone();
+    }
+    function getRaSeveritySelect(selectObject) {
+        var value = selectObject.value;
+        var pEleNode = selectObject.parentElement;
+        var raPossibilityValue = pEleNode.parentElement.querySelectorAll(".raPossibility-select")[0].value;
+        var riskValue = pEleNode.nextElementSibling.innerHTML = value * raPossibilityValue;
+        setRiskLevel(pEleNode.parentElement, riskValue);
+    }
+    function getRaPossibilitySelect(selectObject) {
+        var value = selectObject.value;
+        var pEleNode = selectObject.parentElement;
+        var raSeverityValue = pEleNode.parentElement.querySelectorAll(".raSeverity-select")[0].value;
+        var riskValue = pEleNode.nextElementSibling.nextElementSibling.innerHTML = value * raSeverityValue;
+        setRiskLevel(pEleNode.parentElement, riskValue);
+    }
+    function setRiskLevel(obj, value) {
+
+        var level = "";
+        var color = "";
+        if (value <= 2) {
+            level = "低";
+            color = "green";
+        }
+        else if (value >= 8) {
+            level = "高";
+            color = "red";
+        }
+        else {
+            level = "中等";
+            color = "blue";
+        }
+
+        obj.querySelectorAll(".RA_Level")[0].innerHTML = level;
+        obj.querySelectorAll(".RA_Level")[0].style.color = color;
+
+    }
+    function submitRiskAssess() {
+        var rowEl = document.getElementsByClassName('TaskID');
+        for (var i = 0; i < rowEl.length; i++) {
+            var parentEl = rowEl[i].parentElement;
+            $.ajax({
+                type: "post",
+                url: "@Url.Action("SetRiskAssessInfo","Home")",
+                data: {
+                    idx: parentEl.querySelectorAll(".id")[0].innerHTML,
+                    taskId: parentEl.querySelectorAll(".TaskID")[0].innerHTML,
+                    potential_hazard: parentEl.querySelectorAll(".PotentialHazard")[0].innerText,
+                    possible_situation: parentEl.querySelectorAll(".PossibleSituation")[0].innerText,
+                    severity: parentEl.querySelectorAll(".raSeverity-select")[0].value,
+                    possibility: parentEl.querySelectorAll(".raPossibility-select")[0].value,
+                    riskCM: parentEl.querySelectorAll(".RiskCM")[0].innerText,
+                    modifiedFlag: "true",
+                },
+                success: function (result) {
+
+                    //$('#addSubProjectModal').modal('hide');
+
+                },
+                error: function (xhr, exception) {
+                    alert('getTaskInfo error');
+                    return false;
+                }
+            });
+        }
+        location.reload();
+    }
+    class tableCol {
+        constructor(data) {
+            this.colClassName = data.colClassName;
+            this.colString = data.colString;
+            this.counts = data.counts;
+        }
+    }
+
+    var colArr = [];
+    var classArr = ["Task1Step", "Task2Step", "TaskContent"];
+    function analyzeData(data) {
+
+        for (var k = 0; k < classArr.length; k++) {
+            var count = 0;
+            $.each(data, function (key, ele) {
+                var str = "";
+                if (k == 0)
+                    str = ele.task1Step;
+                else if (k == 1)
+                    str = ele.task2Step;
+                else {
+                    str = ele.taskContent;
+                }
+                if (str != null) {
+                    if (colArr.length > 0 && str.includes(colArr[colArr.length - 1].colString)) {
+                        count++;
+                        colArr[colArr.length - 1].counts = count;
+                    }
+                    else {
+
+                        var obj = new tableCol({ colClassName: classArr[k], colString: str, counts: 1 });
+                        colArr.push(obj);
+                        count = 1;
+                    }
+                }
+            });
+        }
+    }
+    function fillRATable(result) {
+        var temp = getTemplate();
+        var mix = '';
+        $("#tableBody").html(mix)
+        analyzeData(result);
+        $.each(result, function (key, ele) {
+            temp.find(".id").text(ele.idx)
+            temp.find(".TaskID").text(ele.taskID)
+            for (var k = 0; k < 3; k++) {
+                var className = classArr[k];
+                var eleString = '';
+                if (k == 0)
+                    eleString = ele.task1Step;
+                else if (k == 1)
+                    eleString = ele.task2Step;
+                else
+                    eleString = ele.taskContent;
+                for (var j = 0; j < colArr.length; j++) {
+                    if (colArr[j].colClassName.includes(className) && colArr[j].colString.includes(eleString)
+                        && colArr[j].counts != 0) {
+                        temp.find("." + className).text(eleString)
+                        if (k == 2)
+                            temp.find(".edit_ph")[0].classList.add("bi-plus-circle-fill");
+                        colArr[j].counts = 0;
+                        break;
+                    }
+                    else {
+                        temp.find("." + className).text(' ')
+                        if (k == 2)
+                            temp.find(".edit_ph")[0].classList.remove("bi-plus-circle-fill");
+                    }
+
+                }
+            }
+            temp.find(".PotentialHazard").text(ele.potentialHazard)
+            var Index = 0;
+            if (ele.rA_Possibility != null)
+                Index = parseInt(ele.rA_Possibility);
+            var options = temp.find(".raPossibility-select")[0];
+            for (var i = 0; i < options.length; i++) {
+                options[i].removeAttribute("selected");
+            }
+            temp.find(".raPossibility-select")[0].options[Index].setAttribute('selected', 'selected')
+            Index = 0;
+            if (ele.rA_Severity != null)
+                Index = parseInt(ele.rA_Severity);
+            options = temp.find(".raSeverity-select")[0];
+            for (var i = 0; i < options.length; i++) {
+                options[i].removeAttribute("selected");
+            }
+            temp.find(".raSeverity-select")[0].options[Index].setAttribute('selected', 'selected')
+            var strSP = "";
+            if (ele.possibleSituation != null)
+                strSP = ele.possibleSituation.replace(/\n/g, "<br>");
+            temp.find(".PossibleSituation").html(strSP)
+            var strSP1 = "";
+            if (ele.riskCM != null)
+                strSP1 = ele.riskCM.replace(/\n/g, "<br>");
+            temp.find(".RiskCM").html(strSP1)
+            var value = parseInt(ele.rA_Severity) * parseInt(ele.rA_Possibility);
+            if (isNaN(value))
+                value = 0;
+            temp.find(".RA_RiskValue").text(value)
+            var level = "";
+            var color = "";
+            if (value <= 2) {
+                level = "低";
+                color = "green";
+            }
+            else if (value >= 8) {
+                level = "高";
+                color = "red";
+            }
+            else {
+                level = "中等";
+                color = "blue";
+            }
+            temp.find(".RA_Level").text(level)
+            temp.find(".RA_Level")[0].style.color = color;
+            var b = temp.find(".raCM_Person-select")[0]
+            var options = temp.find(".raCM_Person-select")[0].options
+            options.forEach(o => o.remove());
+
+
+
+            getRaCmPerson(b)
+            var list = getRaCmPerson(temp.find(".raCM_Person-select"))
+            //temp.find(".raCM_Person-select").options[Index].setAttribute('selected', 'selected')
+            mix += temp[0].outerHTML
+        })
+
+        $("#tableBody").html(mix)
+
+    }
+    function getRaCmPerson(obj) {
+        var node2 = document.getElementById('projectID');
+        var pjid = node2.textContent || node2.innerText;
+        var cmName = document.getElementById('cmNameInput').value;
+        $.ajax({
+            type: "post",
+            url: "@Url.Action("getRiskAssessCMname","Home")",
+            data: {
+                projectID: pjid,
+            },
+            success: function (result) {
+                var option = document.createElement("option");
+                option.text = "Kiwi";
+                obj.add(option)
+
+            },
+            error: function (xhr, exception) {
+                alert('getRiskAssessCMname error');
+                return false;
+            }
+        });
+
+    }
+    function ClickEdit_RiskCM(e) {
+        e.classList.add("selectedRiskAssess");
+        document.getElementById('editModal2Title').innerHTML = "風險對策";
+        document.getElementById('editModal2Context').innerHTML = e.parentElement.parentElement.querySelectorAll(".TaskContent")[0].innerHTML;
+        initEditModal2Modal();
+        $('#editModal2').modal('show');
+    }
+    function ClickEdit_Possible(e) {
+        e.classList.add("selectedRiskAssess");
+        initEditModal2Modal();
+        document.getElementById('editModal2Title').innerHTML = "可能的災害狀況";
+        document.getElementById('editModal2Context').innerHTML = e.parentElement.parentElement.querySelectorAll(".TaskContent")[0].innerHTML;
+        $('#editModal2').modal('show');
+    }
+    function ClickEdit_ph(e) {
+        e.classList.add("selectedRiskAssess");
+        initEditModal2Modal();
+        document.getElementById('editPhModalContext').innerHTML = e.parentElement.previousElementSibling.previousElementSibling.innerHTML;
+        $('#editPhModal').modal('show');
+    }
+    //function editModal2confirmed() {
+
+    //    var el = document.getElementsByClassName('selectedRiskAssess');
+    //    var str = $('#textAreaEditModal2').val().split("\n");
+    //    var htmlStr = '';
+    //    for (var i = 0; i < str.length; i++) {
+    //        htmlStr += str[i];
+    //        htmlStr += "<br>";
+    //    }
+    //    var title = document.getElementById('editModal2Title').innerHTML;
+    //    if (title == "風險對策") {
+    //        el[0].parentElement.parentElement.querySelectorAll(".RiskCM")[0].innerHTML = htmlStr;
+    //    }
+    //    else {
+    //        el[0].parentElement.parentElement.querySelectorAll(".PossibleSituation")[0].innerHTML = htmlStr;
+    //    }
+
+    //    el[0].classList.remove("selectedRiskAssess");
+    //    $('#editModal2').modal('hide');
+    //}
+    function initEditModal2Modal() {
+        var el = document.getElementsByClassName('selectedRiskAssess');
+        var title = document.getElementById('editModal2Title').innerHTML;
+        var str = '';
+        //if (title == "風險對策") {
+        //    str = el[0].parentElement.parentElement.querySelectorAll(".RiskCM")[0].innerHTML.replace("<br>", "\n");
+        //}
+        //else {
+        //    str = el[0].parentElement.parentElement.querySelectorAll(".PossibleSituation")[0].innerHTML.replace("\n", "<br>");
+        //}
+        $('#textAreaEditModal2').val(str);
+    }
+    function initEditPhModal() {
+        var el = document.getElementsByClassName('selectgroup-input');
+        var el2 = document.getElementsByClassName('selectedRiskAssess');
+        var str = el2[0].parentElement.previousElementSibling.innerHTML;
+        for (var i = 0; i < el.length; i++) {
+            if (str.includes(el[i].nextElementSibling.innerHTML))
+                el[i].checked = true;
+            else
+                el[i].checked = false;
+        }
+
+        var checkBtn = document.getElementsByClassName('selectgroup-button');
+
+    }
+    function editPhModalconfirmed() {
+
+        var str = "";
+        var checkboxes = document.querySelectorAll('input[type=checkbox]:checked')
+        for (var i = 0; i < checkboxes.length; i++) {
+            str += "<p>";
+            str += checkboxes[i].nextElementSibling.innerHTML;
+            str += "</p>"
+        }
+        var el = document.getElementsByClassName('selectedRiskAssess');
+        el[0].parentElement.previousElementSibling.innerHTML = str;
+        el[0].classList.remove("selectedRiskAssess");
+        $('#editPhModal').modal('hide');
+    }
+    //table模板
+    function tabletoHtmlString(result) {
+        let htmlString = "";
+        if (ConstructionCost >= 1000000000) {
+            console.log('展示十億以上table');
+        } else if (ConstructionCost >= 50000000 && ConstructionCost <= 1000000000) {
+            console.log('展示5000萬以上未達10億table');
+            htmlString = `
+                <tr>
+                    <td scope="col" hidden class="id">${result.idx}</td>
+                    <td scope="col" hidden class="TaskID">${result.taskID}</td>
+                    <td colspan="17" class="Task1Step text-start">第一階作業名稱：${result.task1Step}</td>
+                </tr>
+                <tr>
+                    <td colspan="17" class="Task2Step text-start">第二階作業名稱：${result.task2Step}</td>
+                </tr>
+                <tr>
+                    <td colspan="1" class="TaskContent text-start">作業步驟:${result.taskContent}</td>
+                    <td colspan="1" class="PotentialHazard">${result.potentialHazard}</td>
+                    <td colspan="1">
+                        <i class="edit_ph bi-plus-circle-fill" onclick="eddyopenRAphModel(this)"></i>
+                    </td>
+                    <td colspan="1" class="PossibleSituation">${result.possibleSituation}</td>
+                    <td colspan="1">
+                        <i class="edit_ps bi bi-pencil-fill" onclick="eddyClickEdit_Possible(this)"></i>
+                    </td>
+                    <td colspan="1" class="RA_Possibility">
+                            <select class="raPossibility-select" style="width:40px;" onchange="getRaPossibilitySelect(this)">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </td>
+                    <td colspan="1" class="RA_Severity">
+                            <select class="raSeverity-select" style="width:40px;"onchange="getRaSeveritySelect(this)">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </td>
+                    <td colspan="1" class="RA_RiskValue"></td>
+                        <td colspan="1" class="RA_Level RA_Level-text"></td>
+                    <td colspan="1">
+                            <select class="raCan-select" style="width:50px;" onchange="setRaCanSelect(this)">
+                            <option value="可">可</option>
+                            <option selected value="否">否</option>
+                        </select>
+                    </td>
+                    <td colspan="1" class="RiskCM"></td>
+                            <td colspan="1">
+                                <i class="edit_rcm bi bi-pencil-fill" onclick="eddyClickEdit_RiskCM(this)"></i>
+                            </td>
+                        <td colspan="1" class="CM_Persion">${result.cmPersion}</td>
+                    <td colspan="1">
+                        <i class="edit_ph bi-plus-circle-fill" onclick="editCMPersion(this)"></i>
+                    </td>
+                    <td colspan="1"></td>
+                    <td colspan="1"></td>
+                    <td colspan="1"></td>
+                    <td colspan="1"></td>
+                    <td colspan="1"></td>
+                </tr>
+                `;
+        } else {
+            console.log('展示未達5000萬table');
+            htmlString = `
+                        <tr>
+                            <td scope="col" hidden class="id">${result.idx}</td>
+                            <td scope="col" hidden class="TaskID">${result.taskID}</td>
+                            <td colspan="5" class="text-start">第一階作業名稱：${result.task1Step}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" class="text-start">第二階作業名稱：${result.task2Step}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="1" class="text-start">作業步驟1</td>
+                            <td colspan="1"></td>
+                            <td colspan="1"></td>
+                            <td colspan="1"></td>
+                            <td colspan="1"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="1" class="text-start">作業步驟2</td>
+                            <td colspan="1"></td>
+                            <td colspan="1"></td>
+                            <td colspan="1"></td>
+                            <td colspan="1"></td>
+                        </tr>
+                `;
+        }
+        return htmlString;
+    }
+    //渲染table
+    function eddy(result) {
+        console.log(result);
+        console.log(result.length);
+        $('#eddytablebody').children().remove();
+        //null值變為空字串''
+        $.each(result, function (index, obj) {
+            $.each(obj, function (key, value) {
+                if (value === null) {
+                    obj[key] = '';
+                }
+            });
+        });
+        for (let i = 0; i < result.length; i++) {
+            let htmlString = tabletoHtmlString(result[i]);
+            $('#eddytablebody').append(htmlString);
+
+            //修改風險性
+            document.querySelectorAll('.RA_RiskValue')[i].textContent =
+                `${result[i].rA_Possibility * result[i].rA_Severity} `;
+            //修改風險等級
+            let value = result[i].rA_Possibility * result[i].rA_Severity;
+            setRiskLevel(document.querySelectorAll('.raPossibility-select')[i].parentElement.parentElement, value)
+
+            //修改風險背景顏色
+            setRaCanSelect(document.querySelectorAll('.raCan-select')[i]);
+
+            //修改風險對策
+            let newStr = result[i].riskCM.replace(/\n/g, "<br>");
+            $('.RiskCM').eq(i).append(newStr);
+
+            //修改select 一定要在最後因為有continue
+            if (result[i].rA_Possibility === '' || result[i].rA_Severity === '') {
+                continue;
+            }
+            $('.raPossibility-select').eq(i).val(result[i].rA_Possibility);
+            $('.raSeverity-select').eq(i).val(result[i].rA_Severity);
+        }
+
+    }
+    //能選擇什麼危害類型(選過了不能選)
+    function eddyinitRaPHOptions(obj) {
+        $('#raPHOptions').find('option')
+            .remove()
+            .end()
+        //找隱藏的taskID
+        var taskID = $(obj).parent().parent().prev().prev().find('.TaskID').text();
+        var ph = document.querySelector("#eddytablebody").querySelectorAll('.PotentialHazard');
+        var optionsArr = ["火災", "感電", "墜落", "物體飛落", "物體倒塌", "被夾", "被撞", "跌倒"];
+
+        for (var j = 0; j < optionsArr.length; j++) {
+            for (var i = 0; i < ph.length; i++) {
+                if ($(ph[0]).parent().prev().prev().find('.TaskID').text().includes(taskID)) {
+
+                    if (optionsArr[j].includes(ph[i].innerText) && ph[i].innerText.length > 0) {
+                        break;
+                    }
+                }
+                if (i == ph.length - 1) {
+                    $('#raPHOptions').append(new Option(optionsArr[j]));
+                }
+            }
+        }
+
+    }
+    function eddyopenRAphModel(obj) {
+        $(obj).parent().parent().addClass('selectedPhItem');//標記目前在編輯哪個
+        eddyinitRaPHOptions(obj);
+        $('#addRAPhModal').modal('show');
+    }
+    //危害類型送出eddy
+    function btnAddRAPhConfrimed(obj) {
+        var e = document.getElementById("raPHOptions");
+        var value = e.value;
+        console.log(value);
+        var rowEl = $('.selectedPhItem').prev().prev().find('.TaskID').text();
+        $.ajax({
+            type: "post",
+            url: "@Url.Action("SetRiskAssessInfo","Home")",
+            data: {
+                taskId: rowEl,
+                potential_hazard: value,
+            },
+            success: function (result) {
+                $('#addRAPhModal').modal('hide');
+                $(".selectedPhItem").removeClass('selectedPhItem');
+                console.log('成功');
+                getdata();
+            },
+            error: function (xhr, exception) {
+                alert('getTaskInfo error');
+                $(".selectedPhItem").removeClass('selectedPhItem');
+                return false;
+            }
+        });
+    }
+    //編輯可能之風險狀況
+    function eddyClickEdit_Possible(obj) {
+        //彈出model
+        $('#textAreaEditModal2').val("");
+        obj.classList.add("selectedRiskAssess");//標記目前在編輯哪個
+        document.getElementById('editModal2Title').innerHTML = "可能的災害狀況";
+        document.getElementById('editModal2Context').innerHTML = $(obj).parent().parent().find('.TaskContent').text();
+        $('#editModal2').modal('show');
+
+    }
+    //送出可能之風險狀況eddy
+    function editModal2confirmed() {
+
+        var el = document.getElementsByClassName('selectedRiskAssess');
+        var str = $('#textAreaEditModal2').val().split("\n");
+
+        var htmlStr = '';
+        for (var i = 0; i < str.length; i++) {
+            htmlStr += str[i];
+            htmlStr += "<br>";
+        }
+
+        var title = document.getElementById('editModal2Title').innerHTML;
+        if (title == "處理風險與機會之措施") {
+            el[0].parentElement.parentElement.querySelectorAll(".RiskCM")[0].innerHTML = htmlStr;
+        }
+        else {
+            el[0].parentElement.parentElement.querySelectorAll(".PossibleSituation")[0].innerHTML = htmlStr;
+        }
+
+        el[0].classList.remove("selectedRiskAssess");
+        $('#editModal2').modal('hide');
+    }
+    //選擇風險可否接受時修改背景顏色
+    function setRaCanSelect(obj) {
+        console.log(obj.value);
+        let bgColor = "";
+        if (obj.value == '可') {
+            bgColor = 'rgba(193,230,198,1)';
+        } else {
+            bgColor = 'rgba(255,186,185,1)';
+        }
+        obj.parentElement.parentElement.style.backgroundColor = bgColor;
+    }
+    //編輯風險對策的處理風險與機會之措施
+    function eddyClickEdit_RiskCM(obj) {
+        $('#textAreaEditModal2').val("");
+        obj.classList.add("selectedRiskAssess");//標記目前在編輯哪個
+        document.getElementById('editModal2Title').innerHTML = "處理風險與機會之措施";
+        document.getElementById('editModal2Context').innerHTML = $(obj).parent().parent().find('.TaskContent').text();
+        $('#editModal2').modal('show');
+    }
+
+    //編輯負責人
+    function editCMPersion(obj) {
+        $('#editCMPersion').modal('show');
+        $(obj).addClass("selectedCMPersion");//標記目前在編輯哪個
+
+        //預選
+        let ckPersion = $(obj).parent().parent().find('.CM_Persion').text();
+        $('#editCKPersionOption').val(ckPersion);
+
+    }
+    //確認編輯負責人
+    function editCMPersionConfirmed() {
+        let CKPersionOptionValue = $('#editCKPersionOption').val();
+        //如果選擇其他
+        if (CKPersionOptionValue == '其他') {
+            $('#createCMmodel').modal('show');
+        } else {
+            $('.selectedCMPersion').parent().parent().find('.CM_Persion').text(CKPersionOptionValue);
+        }
+
+
+        $('#editCMPersion').modal('hide');
+    };
+    //確認新增負責人
+    function createCMPersionConfirmed() {
+        let CMPersionName = $('#cmNameInput').val();
+        let pjid = $('#projectID').text();
+
+        $.ajax({
+            type: "post",
+            url: "@Url.Action("setRiskAssessCMname","Home")",
+            data: {
+                projectID: pjid,
+                cmName: CMPersionName,
+            },
+            success: function (result) {
+                $('#editCKPersionOption').append(new Option(CMPersionName));
+                $('#createCMmodel').modal('hide');
+            },
+            error: function (result) {
+                alert('setRiskAssessCMname error');
+            }
+        });
+
+        //$('#createCMmodel').modal('hide');
+    }
+    $(document).ready(function () {
+        //讓關閉model時移除所有標記
+        $('#editModal2').on('hide.bs.modal', function (e) {
+            $('.selectedRiskAssess').removeClass('selectedRiskAssess');
+        })
+        $('#addRAPhModal').on('hide.bs.modal', function (e) {
+            $('.selectedPhItem').removeClass('selectedPhItem');
+        })
+        $('#editCMPersion').on('hide.bs.modal', function (e) {
+            $('.selectedCMPersion').removeClass('selectedCMPersion');
+        })
+        //負責人選項先填好
+        let pjid = $('#projectID').text();
+        $.ajax({
+            type: "post",
+            url: "@Url.Action("getRiskAssessCMname","Home")",
+            data: {
+                projectID: pjid,
+            },
+            success: function (result) {
+                let editCKPersionOption = $('#editCKPersionOption');
+                for (let i = 0; i < result.length; i++) {
+                    editCKPersionOption.append(new Option(result[i].cM_Name.trim()));
+                }
+            },
+            error: function (result) {
+                alert('setRiskAssessCMname error');
+            }
+        });
+    });
+    $(document).ready(function () {
+
+        var node2 = document.getElementById('projectID');
+        var id = node2.textContent || node2.innerText;
+        var subpjDataId = $('#subProjects .active').data('subprojectid');
+        var subpjName = $('#subProjects .active')[0].textContent;
+        $.ajax({
+            type: "post",
+            url: "@Url.Action("getRiskAssessInfo","Home")",
+            data: {
+                projectID: id,
+                subProjectId: subpjDataId,
+                subProjectName: subpjName,
+            },
+            success: function (result) {
+                fillRATable(result);
+
+            },
+            error: function (xhr, exception) {
+                alert('getTaskInfo error');
+                return false;
+            }
+        });
+
+        function InitModalOptions(e) {
+            var val = e.closest(".PossibleSituation").tagName;
+        }
+    });
+    getdata();
+    function getdata() {
+        var node2 = document.getElementById('projectID');
+        var id = node2.textContent || node2.innerText;
+        var subpjDataId = $('#subProjects .active').data('subprojectid');
+        var subpjName = $('#subProjects .active')[0].textContent;
+        $.ajax({
+            type: "post",
+            url: "@Url.Action("getRiskAssessInfo","Home")",
+            data: {
+                projectID: id,
+                subProjectId: subpjDataId,
+                subProjectName: subpjName,
+            },
+            success: function (result) {
+                eddy(result)
+            },
+            error: function (xhr, exception) {
+                alert('getTaskInfo error');
+                return false;
+            }
+        });
+    }
+</script>

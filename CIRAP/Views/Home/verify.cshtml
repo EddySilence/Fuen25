@@ -1,0 +1,81 @@
+﻿@model CIRAP.ViewModels.verifyViewModel
+
+@{
+    ViewData["Title"] = "verify";
+}
+
+<h1>驗證</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <label asp-for="ValidateCode" class="control-label"></label>
+            <input asp-for="ValidateCode" class="form-control" id="validateCode" />
+            <span asp-validation-for="ValidateCode" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <button type="button" value="發送" class="btn btn-primary" onclick="verifySubmit()" />發送
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6 id="modalBodyData"></h6>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a herf="www.google.com">返回首頁</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        //取得網址中GET參數
+        let getUrlString = location.href;
+        let url = new URL(getUrlString);
+        let account = url.searchParams.get('account');
+        let validateCode = "";
+        function verifySubmit() {
+            validateCode = $('#validateCode').val();
+            $.ajax({
+                type: "post",
+                url: "@Url.Action("verify","Home")",
+                data: {
+                    account: account,
+                    ValidateCode: validateCode,
+                },
+                success: function (data) {
+                    console.log(data);
+                    if (data.data = "成功") {
+                        console.log("我成功了");
+                        var myModal = new bootstrap.Modal($('#exampleModal'));
+                        myModal.show();
+                        $('#exampleModalLabel').text("認證成功");
+                        $('#modalBodyData').text("返回首頁繼續登入");
+                    }
+                },
+                error: function (data) {
+                    console.log(data);
+                    if (data.data = "失敗") {
+
+                    }
+                }
+            })
+        }
+    </script>
+}

@@ -1,0 +1,366 @@
+﻿@model IEnumerable<CIRAP.Models.ProjectTasks>
+@{
+    var sysProjectList = ViewBag.sysSubProjectList;
+    var sysFirstSetpTask = ViewBag.sysFirstSetpTask;
+    var projectID = ViewBag.projectID;
+    var activeSubProject=ViewBag.activeSubProject;
+
+}
+
+<style>
+    .inline {
+        display: inline-block;
+    }
+
+    label {
+        font-weight: 600
+    }
+
+    .card-title {
+        font-weight: 800
+    }
+
+    .btn {
+        margin-top: 20px
+    }
+
+    .infoGroup {
+        margin-top: 5px
+    }
+</style>
+<div class="wrapper">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link" href="@Url.Content("~/Home/ProjectInfo")?projectID=@projectID">工程基本資料</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" href="@Url.Content("~/Home/SubProjects")">分項工程</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="@Url.Content("~/Home/TreeView")?projectID=@projectID">分項圖示</a>
+        </li>
+         <li class="nav-item">
+            <a class="nav-link" href="@Url.Content("~/Home/RiskAssess")?projectID=@projectID">風險評估</a>
+        </li>
+    </ul>
+</div>
+<div class="card-body">
+    <h5 class="card-title">分項工程</h5>
+    <div hidden id="projectID">@projectID</div>
+     @if(Model.Count()==0)
+     {
+        <div>請新增分項工作</div>
+     }
+     else
+     {
+        <ul class="nav nav-tabs" id="subProjects">
+            @{
+                int count = 0;
+                var activestring = "";
+                bool bSkipFlag = false;
+                var subprojectsArr = new List<string>();
+
+                foreach (var item in Model)
+                {
+                    bSkipFlag = false;
+                    if (count==0)
+                        activestring = "active";
+                    foreach(var item2 in subprojectsArr)
+                    {
+                        if (item2.Equals(item.SubProjectName))
+                        {
+                            bSkipFlag = true;
+                            break;
+                        }
+                    }
+                    if (bSkipFlag)
+                        continue;
+                    subprojectsArr.Add(@item.SubProjectName);
+                    <li class="nav-item">
+                        <a class="nav-link @activestring" data-subprojectid="@item.SubProjectID" >@item.SubProjectName</a>
+                    </li>
+                    activestring = "";
+                    count++;
+                }
+            }
+         </ul>
+        <div class="card-body" id="divPartial">
+            @await Html.PartialAsync("_ProjectTasks",Model)    
+
+        </div>
+    }
+    <div>
+        <button class="btn btn-primary" id="addSubProject" data-bs-toggle="modal" data-bs-target="#addSubProjectModal">新增分項工程</button>
+    </div>
+</div>
+
+<div class="modal fade" id="addSubProjectModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">分項工程</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <select class="form-select" aria-label="Default select example" id="subProjectSellect">
+                    @{
+                        bool bSkipflag2 = false;
+                        foreach (var item in sysProjectList)
+                        {
+                            bSkipflag2 = false;
+                            foreach(var e in Model)
+                            {
+                                if (e.SubProjectName?.Trim().Equals(item.Name.Trim()))
+                                {
+                                    bSkipflag2 = true;
+                                    break;
+                                }
+                            }
+                            if (bSkipflag2)
+                                continue;
+                            <option value=@item.Id>@item.Name</option>
+                        }
+                    }
+                    <option value=99>其他</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="close_btn">關  閉</button>
+                <button type="button" class="btn btn-primary" onclick="fun()">確  認</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addNewSubProjectModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">自訂分項工程</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="FormControlInput1" class="form-label">分項工程名稱</label>
+                    <input type="text" class="form-control" id="FormControlInput1Box">
+                </div>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關  閉</button>
+                <button type="button" class="btn btn-primary" onclick="addSubProjectName()">確  認</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        
+//        setTaskOptions();
+        var btns =
+            $("#subProjects .nav-item .nav-link");
+
+        for (var i = 0; i < btns.length; i++) {
+            btns[i].addEventListener("click",
+                function () {
+                    fillTableContent(this);              
+                });
+        }
+         var node2 = document.getElementById('projectID');
+        var id = node2.textContent || node2.innerText;
+        var subpjDataId = $('#subProjects .active').data('subprojectid');
+        var subpjName = $('#subProjects .active')[0].textContent;
+         $.ajax({
+            type: "post",
+            url: "@Url.Action("getTasksInfo","Home")",
+            data: {
+                projectID: id,
+                subProjectId: subpjDataId,
+                subProjectName: subpjName,
+            },
+            success: function (result) {
+                fillTable(result);
+                          
+            },
+            error: function (xhr, exception) {
+                alert('getTaskInfo error');
+                return false;
+            }
+        });
+
+
+    });
+    function fillTableContent(obj)
+    {
+        var node2 = document.getElementById('projectID');
+        var id = node2.textContent || node2.innerText;
+        $("#subProjects .nav-item .active").removeClass("active");
+        obj.className += " active";
+        var subpjDataId = $('#subProjects .active').data('subprojectid');
+        var subpjName = $('#subProjects .active')[0].textContent;
+        $.ajax({
+            type: "post",
+            url: "@Url.Action("getTasksInfo","Home")",
+            data: {
+                projectID: id,
+                subProjectId: subpjDataId,
+                subProjectName: subpjName,
+            },
+            success: function (result) {
+                fillTable(result);
+                          
+            },
+            error: function (xhr, exception) {
+                alert('getTaskInfo error');
+                return false;
+            }
+        });
+    }
+    function fillTable(result) {
+         var tbBody = document.getElementById('tableBody');
+        while (tbBody.hasChildNodes()) {
+            tbBody.removeChild(tbBody.firstChild);
+        }
+                              
+        var task1StepName='';
+        let task1StepArray = [];
+        for (let i = 0; i < result.length; i++) {
+            if (result[i].task1Step==null||result[i].task1Step.trim().length < 1)
+                continue;
+            tbBody = document.getElementById('tableBody');
+            var row = tbBody.insertRow(-1);
+            row.className='taskRow';
+            var cell=null;
+            var rowCount = 0;
+            var isIntask1StepArray = false;
+            for (let j = 0; task1StepArray!=null&&j < task1StepArray.length; j++) {
+                if (task1StepArray[j] == result[i].task1Step)
+                    isIntask1StepArray=true;
+                                       
+            }
+            if (!isIntask1StepArray)
+            {
+                task1StepArray.push(result[i].task1Step);
+                    for(let k = 0; k < result.length; k++)
+                    {
+                        if (result[i].task1Step == result[k].task1Step)
+                                rowCount++;
+                    }
+            }
+
+                                    
+                                
+            if(rowCount>0)
+            {
+                cell = row.insertCell();
+                cell.id = result[i].subProjectID;
+                cell.className='tbTask1stStep';
+                cell.rowSpan = rowCount;
+                cell.innerHTML = result[i].task1Step;                               
+                cell = row.insertCell();
+                cell.rowSpan = rowCount;
+                cell.innerHTML = " <i class=\"bi bi-plus-circle-fill\" onclick=\"setTaskOptions(this)\" ></i>";
+                }
+                                
+            cell = row.insertCell();
+                               
+            cell.className='tbTask2ndStep';
+            cell.innerHTML = result[i].task2Step;
+            cell.id = result[i].id;
+            cell = row.insertCell();
+            cell.className='tbTaskContent';
+            cell.innerHTML = result[i].taskContent;
+                                
+            cell = row.insertCell();
+            cell.innerHTML = "<span class=\"bi bi-pencil-fill\" onclick=\"editTask(this)\"></span> <span class=\"bi-trash\" onclick=\"deleteTask(this)\"></span>";
+
+        }
+                       
+
+    }
+       
+    function editTask(e)
+    {
+        var node = document.getElementById('projectID');
+        var id = node.textContent || node.innerText;
+        var subpjDataId = $('#subProjects .active').data('subprojectid');
+        document.getElementById('editTaskModalTitle').innerHTML = e.closest('.taskRow').querySelector(".tbTask2ndStep").innerHTML;
+        document.getElementById('taskContectTextarea1').value = e.closest('.taskRow').querySelector(".tbTaskContent").innerHTML;       
+        e.classList.add("selectedTask");  
+        $('#editStep2TasksModal').modal('show');
+    
+    }
+    function deleteTask(e) {
+        var node2 = document.getElementById('projectID');
+        var id = node2.textContent || node2.innerText;
+       var activeSubProject = $('#subProjects .active').text();
+       var taskId=e.parentNode.parentNode.querySelector('.tbTask2ndStep').id;
+            $.ajax({
+                type: "post",
+                url: "@Url.Action("deleteTask","Home")",
+                data: {
+                projectID: id,
+                    subProjectName: activeSubProject,
+                    taskId: taskId,  
+                },
+                success: function (result) {
+                    fillTable(result);
+                },
+                error: function (xhr, exception) {
+                    alert('getTaskInfo error');
+                    return false;
+                }
+         });
+     }
+
+    function addSubProjectName()
+    {
+        var text = document.getElementById("FormControlInput1Box").value;
+        var node = document.getElementById('projectID');
+        var id = node.textContent || node.innerText;
+        $.post("/Home/SetSubProject", { subProjectID: 99, subProjectName: text, projrctID: id, firstStepTask: " ", secondStepTask:" ", taskContext: " ", stage :" "});
+        $('#addNewSubProjectModal').modal('hide');
+        window.location.href = "@Url.Content("~/Home/SubProjects")?projectID=" + id + "&activeSubProject=0";
+    }
+    function fun() { 
+        var e = document.getElementById("subProjectSellect");
+        var value = e.value;
+        if(value==99)
+        {
+            $('#addSubProjectModal').modal('hide');
+            $('#addNewSubProjectModal').modal('show');
+        }
+        else
+        {
+            var text = e.options[e.selectedIndex].text; 
+            var node = document.getElementById('projectID');
+            var id = node.textContent || node.innerText;
+            $.ajax({
+                type: "post",
+                url: "@Url.Action("SetSubProject","Home")",
+                data: {
+                    subProjectID: value,
+                    subProjectName: text,
+                    projrctID: id.trim(),
+                    firstStepTask: "",
+                    secondStepTask: " ",
+                    taskContext: " ",
+                    stage: " ",
+                },
+                success: function (result) {
+                    $('#addSubProjectModal').modal('hide');
+                    window.location.href = "@Url.Content("~/Home/SubProjects")?projectID=" + id + "&activeSubProject=0";
+                },
+                error: function (xhr, exception) {
+                    alert('getTaskInfo error');
+                    return false;
+                }
+            });
+            //$.post("/Home/SetSubProject", { subProjectID: value, subProjectName: text, projrctID: id.trim(), firstStepTask:"  ", secondStepTask: "  ", taskContext: "  ", stage: "  " });
+           
+            //window.location.href = "@Url.Content("~/Home/SubProjects")?projectID=" +id+"&activeSubProject=0";
+        }
+     }
+ </script>
+

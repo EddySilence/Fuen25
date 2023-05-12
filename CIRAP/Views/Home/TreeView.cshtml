@@ -1,0 +1,151 @@
+﻿@model IEnumerable<CIRAP.Models.ProjectTasks>
+@{
+    var projectID = ViewBag.projectID;
+}
+<style>
+
+</style>
+<div class="wrapper">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link" href="@Url.Content("~/Home/ProjectInfo")">工程基本資料</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="@Url.Content("~/Home/SubProjects")?projectID=@projectID&activeSubProject=0">分項工程</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" href="@Url.Content("~/Home/TreeView")?projectID=@projectID">分項圖示</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="@Url.Content("~/Home/RiskAssess")?projectID=@projectID">風險評估</a>
+        </li>
+    </ul>
+</div>
+
+<div class="card-body" id="treeview">
+
+    <ul class="tree" id="demo">
+        <li>
+            <ul>
+                @{
+                    var subProjectName = "";
+                    var firstStepTaskName = "";
+                    var secondStepTaskName = "";
+                    foreach (var item in Model)
+                    {
+                        if (!subProjectName.Equals(item.SubProjectName))
+                        {
+                            <div class="sticky" id="tree_1">@item.SubProjectName</div>
+                            subProjectName = item.SubProjectName;
+                            <ul>
+                                @foreach (var item2 in Model)
+                                {
+                                    if (subProjectName.Equals(item2.SubProjectName))
+                                    {
+                                        if (!firstStepTaskName.Equals(item2.Task1Step) && item2.Task1Step != null)
+                                        {
+                                            <li id="li_1">
+                                                <div class="sticky" id="tree_2">@item2.Task1Step</div>
+                                                <ul>
+                                                    @foreach (var item3 in Model)
+                                                    {
+                                                        if (firstStepTaskName.Equals(item3.Task1Step))
+                                                        {
+                                                            if (!secondStepTaskName.Equals(item3.Task2Step) && item3.Task2Step != null)
+                                                            {
+                                                                <li id="li_2">
+                                                                    <div class="sticky" id="tree_3">@item3.Task2Step</div>
+                                                                </li>
+                                                                secondStepTaskName = item3.Task2Step;
+                                                            }
+                                                        }
+                                                    }
+                                                </ul>
+                                            </li>
+                                            firstStepTaskName = item2.Task1Step;
+                                        }
+                                    }
+                                }
+                            </ul>
+                        }
+                    }
+                }
+            </ul>
+        </li>
+
+    </ul>
+
+
+</div>
+<div class="pdf_btn">
+    <button class="btn btn-primary" id="printTreeView" >產生PDF檔</button>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.min.js"></script>
+@*<script src="~/js/pdf.js"></script>*@
+<script>
+    $(document).ready(function () {
+        $('#printTreeView').on('click', function () {
+            //$('body').scrollTop(0);
+            createPDF();
+        });
+
+        function createPDF() {
+            var element = $("#treeview"); // 這個dom元素是要匯出pdf的div容器
+            var w = element.width(); // 獲得該容器的寬
+            var h = element.height(); // 獲得該容器的高
+            var offsetTop = element.offset().top; // 獲得該容器到文件頂部的距離
+            var offsetLeft = element.offset().left; // 獲得該容器到文件最左的距離
+            var canvas = document.createElement("canvas");
+            var abs = 0;
+            var win_i = $(window).width(); // 獲得當前可視視窗的寬度（不包含滾動條）
+            var win_o = window.innerWidth; // 獲得當前視窗的寬度（包含滾動條）
+            if (win_o > win_i) {
+                abs = (win_o - win_i) / 2; // 獲得滾動條長度的一半
+            }
+            canvas.width = w * 2 // 將畫布寬&&高放大兩倍
+            canvas.height = h * 2;
+            //const scale = window.devicePixelRatio;
+            const scale =2;
+            var context = canvas.getContext("2d");
+            context.scale(scale, scale);
+            //context.translate(-offsetLeft-abs,-offsetTop);
+            // 這裡預設橫向沒有滾動條的情況，因為offset.left(),有無滾動條的時候存在差值，因此
+            // translate的時候，要把這個差值去掉
+            html2canvas(element).then(function (canvas) {
+                var contentWidth = canvas.width;
+                var contentHeight = canvas.height;
+                //一頁pdf顯示html頁面生成的canvas高度;
+                var pageHeight = contentWidth / 592.28 * 841.89;
+                //未生成pdf的html頁面高度
+                var leftHeight = contentHeight;
+                //頁面偏移
+                var position = 0;
+                //a4紙的尺寸[595.28,841.89]，html頁面生成的canvas在pdf中圖片的寬高
+                var imgWidth = 595.28;
+                var imgHeight = 592.28 / contentWidth * contentHeight;
+                var pageData = canvas.toDataURL('image/jpeg', 1.0);
+                var pdf = new jsPDF('', 'pt', 'a4',800);
+
+                //有兩個高度需要區分，一個是html頁面的實際高度，和生成pdf的頁面高度(841.89)
+                //當內容未超過pdf一頁顯示的範圍，無需分頁
+                if (leftHeight < pageHeight) {
+                    pdf.addImage(pageData, 'JPEG', 0, 0, imgWidth, imgHeight);
+                } else { // 分頁
+                    while (leftHeight > 0) {
+                        pdf.addImage(pageData, 'JPEG', 0, position, imgWidth, imgHeight)
+                        leftHeight -= pageHeight;
+                        position -= 841.89;
+                        //避免新增空白頁
+                        if (leftHeight > 0) {
+                            pdf.addPage();
+                        }
+                    }
+                }
+                pdf.save('TreeView2.pdf');
+            })
+
+
+        }
+     });
+</script>

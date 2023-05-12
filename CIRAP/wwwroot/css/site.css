@@ -1,0 +1,571 @@
+html {
+    overflow: -moz-hidden-unscrollable;
+    height: 100%;
+    font-size: 24px;
+}
+
+body::-webkit-scrollbar {
+    display: none;
+    /* 滾動條隱藏 */
+}
+
+body {
+    -ms-overflow-style: none;
+    height: 100%;
+    width: calc(100vw + 18px);
+    overflow: auto;
+    height: 100%;
+    background-color: #EEEEEE;
+}
+
+.navbar,
+.navbar-brand,
+footer {
+    padding-left: 100px;
+    padding-right: 100px;
+}
+
+.navbar {
+    height: 180px;
+    overflow: hidden;
+    /*裁切圖片*/
+    background-color: #34495E;
+}
+
+.navbar-brand {
+    order: 3;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 30px;
+    text-align: right;
+    letter-spacing: 0.1em;
+    text-shadow: rgb(24, 24, 24) 0.1em 0.1em 0.2em;
+    z-index: 1;
+}
+
+.logo {
+    position: relative;
+    order: 1;
+    z-index: 1;
+}
+
+.bg {
+    position: absolute;
+    width: 50vw;
+    margin-top: 0px;
+    left: 25%;
+    order: 2;
+}
+
+
+
+footer {
+    background-color: #212A31;
+    padding-top: 50px;
+    padding-bottom: 30px;
+}
+
+footer #left p {
+    color: #fff;
+    line-height: 0.2em;
+    font-size: 11pt;
+}
+
+/* 登入介面 */
+#login {
+    height: auto;
+    margin-top: 5%;
+    margin-bottom: 5%;
+}
+
+#button {
+    background-color: #167B9A;
+    border: 1px solid #167B9A;
+}
+
+#button:hover {
+    background-color: #34ABB1;
+    border: 1px solid #34ABB1;
+}
+
+/* 資料頁籤 */
+.card-body {
+    padding: 2em;
+    background-color: #fff;
+}
+
+.card-title {
+    color: #167B9A;
+    font-size: 18pt;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.nav-link {
+    color: #167B9A;
+}
+
+.btn {
+    color: #ffffff;
+    background-color: #588000;
+    border: 0px;
+    margin-bottom: 10px;
+}
+
+.btn:hover {
+    background-color: #82a040;
+}
+
+
+.infoGroup {
+    padding-bottom: 20px;
+}
+
+/* 分項圖示TreeView樹狀圖 */
+
+.tree {
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+#demo.tree {
+    padding: 30px 0px 30px 0px;
+}
+
+ul {
+    list-style-type: none;
+}
+
+.tree ul {
+    margin: 0px 0px 0px 15px;
+    list-style: none;
+    line-height: 1.8em;
+    color: #167B9A;
+    position: relative;
+}
+
+ul li {
+    font-size: 16px;
+    position: relative;
+}
+
+ul #li_1:before {
+    position: absolute;
+    left: 11em;
+    top: -1em;
+    content: '';
+    display: block;
+    border-left: 2px solid #167B9A;
+    height: 2em;
+    border-bottom: 2px solid #167B9A;
+    width: 2.5em;
+}
+
+ul li:after {
+    position: absolute;
+    left: 11em;
+    bottom: -1em;
+    content: '';
+    display: block;
+    border-left: 2px solid #167B9A;
+    height: 100%;
+}
+
+.tree #li_2:before {
+    border-bottom: 2px solid #5abbc0;
+    border-left: 2px solid #5abbc0;
+    content: "";
+    display: block;
+    height: 150%;
+    left: 24em;
+    margin-top: 0.3em;
+    position: absolute;
+    top: -2.2em;
+    width: 2.5em;
+}
+
+#li_2:after,
+.nav-item:after {
+    border-left: 0px solid #167B9A;
+    /* 把多餘的未知線藏掉 */
+}
+
+ul li:last-child:after {
+    display: none;
+}
+
+
+#tree_1,
+#tree_2,
+#tree_3 {
+    /* 樹狀清單設定 */
+    position: relative;
+    border-radius: 5px;
+    max-width: 15em;
+    min-width: 15em;
+    padding: 0.05em 1em;
+    margin-bottom: 0.5em;
+    box-shadow: 1px 1px 3px #8F949A;
+    color: #369;
+    font-weight: bold;
+}
+
+#tree_1 {
+    background-color: #167B9A;
+    border: 1px solid #167B9A;
+    color: #ffffff;
+}
+
+#tree_2 {
+    background-color: #5abbc0;
+    color: #ffffff;
+    border: 1px solid #5abbc0;
+    left: 13.2em;
+}
+
+#tree_3 {
+    border: 1px solid #ececec;
+    background-color: #ececec;
+    color: #167B9A;
+    left: 26.5em;
+}
+
+
+/* 下載PDF按鈕 */
+
+.pdf_btn {
+    display: flex;
+    justify-content: right;
+    border-top: 1px solid #7a788d;
+
+}
+
+#printTreeView {
+    background-color: #D04437;
+    margin-top: 40px;
+}
+
+#printTreeView:hover {
+    background-color: #df6a5f;
+}
+
+
+/* 分項工程 */
+
+#btnAddFirstStepTask {
+    background-color: #434155;
+}
+
+#btnAddFirstStepTask:hover {
+    background-color: #7a788d;
+    color: #ffffff;
+}
+
+#close_btn {
+    background-color: #D04437;
+}
+
+#close_btn:hover {
+    background-color: #df6a5f;
+}
+
+/* 工程icon */
+
+.bi-trash {
+    color: #D04437;
+}
+
+.bi-pencil-fill {
+    color: #434155;
+}
+
+.bi-plus-circle-fill {
+    color: #167B9A;
+}
+
+/* 設計階段按鈕 */
+
+#lbStageDesign {
+    background-color: #434155;
+}
+
+#lbStageDesign:hover {
+    background-color: #7a788d;
+}
+
+#lbStageDesign:active {
+    background-color: #167B9A;
+}
+
+/* 施工階段按鈕 */
+
+#lbStageContruct {
+    background-color: #ceae3a;
+}
+
+#lbStageContruct:hover {
+    background-color: #ddc260;
+}
+
+#lbStageContruct:active {
+    background-color: #167B9A;
+}
+
+/* 工程相關單位按鈕 */
+#about_btn {
+    background-color: #434155;
+}
+
+#about_btn:hover {
+    background-color: #7a788d;
+}
+
+#about_btn:active {
+    background-color: #7a788d;
+}
+
+/* 新增分項工程按鈕 */
+
+#addSubProject {
+    background-color: #167B9A;
+}
+
+#addSubProject:hover {
+    background-color: #34ABB1;
+}
+
+
+/* RWD 響應式 */
+
+@media (min-width: 768px) {
+    html {
+        font-size: 18px;
+    }
+
+}
+
+@media (max-width: 768px) {
+    html {
+        font-size: 18px;
+    }
+
+
+    .navbar {
+        height: auto;
+        overflow: hidden;
+        /*裁切圖片*/
+        background-color: #34495E;
+        display: flex;
+        flex-wrap: wrap;
+        height: 200px;
+    }
+
+    .navbar-brand {
+        position: relative;
+        display: flex;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 30px;
+        text-align: center;
+        letter-spacing: 0.1em;
+        margin-left: 40px;
+
+    }
+
+    .logo {
+        position: relative;
+        width: 100%;
+        z-index: 1;
+    }
+
+    .bg {
+        position: absolute;
+        left: 0;
+        top: 10;
+        width: 120%;
+        margin-top: 0px;
+    }
+
+
+
+
+    footer {
+        background-color: #212A31;
+        padding-top: 50px;
+        padding-bottom: 30px;
+    }
+
+    footer #left p {
+        color: #fff;
+        line-height: 1;
+    }
+
+    /* 登入介面 */
+    #login {
+        height: auto;
+        margin-top: 5%;
+        margin-bottom: 5%;
+    }
+
+    .card-body {
+        /* display: flex;
+      flex-wrap: wrap;
+      justify-content: center; */
+        height: auto;
+        width: 100%;
+    }
+
+    .img-fluid {
+        padding-top: 30px;
+        padding-bottom: 50px;
+    }
+
+    /* 樹狀圖 */
+
+    ul {
+        list-style-type: none;
+    }
+
+    .tree ul {
+        margin: 0 0 0 1em;
+        padding: 0;
+        list-style: none;
+        color: #167B9A;
+        position: relative;
+    }
+
+    .tree:before,
+    .tree ul:before {
+        content: "";
+        display: block;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        border-left: 0px solid;
+        /* background: rgb(255, 255, 255); */
+        z-index: -1;
+    }
+
+    .tree {
+        padding-top: 30px;
+        padding-bottom: 30px;
+    }
+
+    #demo.tree {
+        padding: 30px 0px 30px 0px;
+    }
+
+    .tree li {
+        font-weight: bold;
+        /* line-height: 1.3em; */
+        margin: 0;
+        padding: 1em 0 0 2em;
+        position: relative;
+        z-index: 1;
+    }
+
+    ul li:after {
+        position: absolute;
+        left: -0.5em;
+        bottom: -1em;
+        content: '';
+        display: block;
+        border-left: 2px solid #167B9A;
+        height: 100%;
+    }
+
+    .tree #li_1:before {
+        border-bottom: 2px solid;
+        border-left: 2px solid;
+        content: "";
+        display: block;
+        height: 4em;
+        left: -0.5em;
+        position: absolute;
+        top: -1.2em;
+        width: 3em;
+        margin-top: -0.7em;
+
+    }
+
+    .tree #li_2:before {
+        border-bottom: 2px solid #5abbc0;
+        border-left: 2px solid #5abbc0;
+        content: "";
+        display: block;
+        height: 4.2em;
+        left: -0.5em;
+        margin-top: 0.3em;
+        position: absolute;
+        top: -2.4em;
+        width: 2.5em;
+    }
+
+    .tree li:before {
+        border-top: 0px solid;
+        content: "";
+        display: block;
+        height: 100%;
+        left: 0;
+        margin-top: 1em;
+        position: absolute;
+        top: 1.0em;
+        width: 2em;
+    }
+
+    .tree li:last-child:before {
+        bottom: 0;
+        height: auto;
+        top: 1.0em;
+    }
+
+    .tree>li:before {
+        border-top: none !important;
+    }
+
+    .tree li div {
+        /* 樹狀清單設定 */
+        border-radius: 5px;
+        border: 1px solid #34ABB1;
+        margin: 0;
+        max-width: 15em;
+        min-width: 15em;
+        padding: 0.25em 1em;
+        background: rgb(255, 255, 255);
+        box-shadow: 1px 1px 3px #8F949A;
+        color: #369;
+        font-weight: bold;
+    }
+
+    ul.tree {
+        margin-left: 0px;
+    }
+
+    ul.tree:before {
+        border-left: none;
+    }
+
+    .sticky {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0px;
+        width: 100%;
+    }
+    
+    #tree_2 {
+        background-color: #5abbc0;
+        color: #ffffff;
+        border: 1px solid #5abbc0;
+        left: 0;
+    }
+    
+    #tree_3 {
+        border: 1px solid #ececec;
+        background-color: #ececec;
+        color: #167B9A;
+        left: 0;
+        margin-bottom: 1em;
+    }
+
+}

@@ -1,0 +1,258 @@
+﻿@model IEnumerable<CIRAP.Models.ProjectTasks>
+@{
+    var TasksList = ViewBag.taskList;
+}
+<div>
+    <div>
+    <table class="table table-striped" id="tasksTable">
+        <thead>
+            <tr>
+                <th scope="col" style="width:20%">第一階作業</th>
+                <th scope="col" style="width:3%"></th>
+                <th scope="col" style="width:25%">第二階作業</th>
+                <th scope="col" style="width:45%">工作內容</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+              
+        </tbody>
+    </table>
+    </div>
+    <button type="button" class="btn btn-info" id="btnAddFirstStepTask"  onclick="setTaskOptions(this)">新增第一階作業</button>
+</div>
+<div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addTaskModalTitle" data-action="">測試</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <select class="form-select" aria-label="Default select example" id="taskOptions">
+                    </select>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="close_btn">關  閉</button>
+                <button type="button" class="btn btn-primary" onclick="btnAddTaskConfrimed(this)">確  認</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editStep2TasksModal" tabindex="-1" aria-labelledby="editStep2TasksModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editTaskModalTitle" data-action="">編輯</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="form-group col-4 inline">
+                    <label for="taskContectTextarea1" class="form-label">工作內容</label>
+                    <textarea class="form-control" id="taskContectTextarea1" style="width:470px" rows="2"></textarea>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="close_btn">關  閉</button>
+                <button type="button" class="btn btn-primary" onclick="btnTaskContentConfrim(this)">確  認</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function btnTaskContentConfrim(obj) {
+       
+        var s = document.getElementById("addTaskModalTitle").dataset.action;
+        var activeSubProject = $('#subProjects .active').text();
+        var subpjDataId = $('#subProjects .active').data('subprojectid');
+        var node = document.getElementById('projectID');
+        var pjId = node.textContent || node.innerText;
+        var text = document.getElementById("taskContectTextarea1").value;
+        var e2 = document.getElementsByClassName("selectedTask");
+        var taskId=e2[0].parentNode.parentNode.querySelector('.tbTask2ndStep').id;
+        //$.post("/Home/EditTaskContect", { id: e2[0].id, taskContext: text });
+
+         $.ajax({
+                        type: "post",
+                        url: "@Url.Action("EditTaskContect","Home")",
+                        data: {
+                            projectID: pjId,
+                            subProjectName:activeSubProject,
+                            id: taskId,
+                            taskContext: text,
+                        },
+                        success: function (result) {
+                            fillTable(result);
+                        },
+                        error: function (xhr, exception) {
+                            alert('getTaskInfo error');
+                            return false;
+                        }
+                    });
+
+
+        e2[0].classList.remove("selectedTask");
+        $('#editStep2TasksModal').modal('hide');
+        
+    }
+    function btnAddTaskConfrimed(obj) {
+        var s = document.getElementById("addTaskModalTitle").dataset.action;
+        var activeSubProject=$('#subProjects .active').text();
+        var subpjDataId = $('#subProjects .active').data('subprojectid');
+        var node = document.getElementById('projectID');
+        var pjId = node.textContent || node.innerText;
+        var e = document.getElementById("taskOptions");
+        var value = e.value;
+        if (s.match('firstStep'))
+        {           
+
+            if (value == 99) {
+                $('#addSubProjectModal').modal('hide');
+                $('#addNewSubProjectModal').modal('show');
+            }
+            else {
+                var text = e.options[e.selectedIndex].text;     
+                var id = node.textContent || node.innerText;
+                //$.post("/Home/SetSubProject", { subProjectID: value, subProjectName: activeSubProject, projrctID: pjId, firstStepTask: text, secondStepTask: " ", taskContext: " ", stage: " " });
+                $('#addFirstStepTaskModal').modal('hide');
+                $.ajax({
+                    type: "post",
+                    url: "@Url.Action("SetSubProject","Home")",
+                    data: {
+                        subProjectID: value,
+                        subProjectName: activeSubProject,
+                        projrctID: pjId,
+                        firstStepTask: text,
+                        secondStepTask: " ",
+                        taskContext: " ",
+                        stage: " ",
+                    },
+                    success: function (result) {
+                        fillTable(result);
+                    },
+                    error: function (xhr, exception) {
+                        alert('getTaskInfo error');
+                        return false;
+                    }
+                });
+                //window.location.href = "@Url.Content("~/Home/SubProjects")?projectID=" + pjId + "&activeSubProject=" + subpjDataId;
+            }
+        }
+        else
+        {
+
+            var c = $('#subProjects .active').text();
+            var text = e.options[e.selectedIndex].text;   
+            var e2 = document.getElementsByClassName("btn_add2ndtask");
+            var step1name = e2[0].parentNode.parentNode.querySelector(".tbTask1stStep").innerHTML.trim();
+            $.ajax({
+                type: "post",
+                url: "@Url.Action("SetSubProject","Home")",
+                data: {
+                    subProjectID: value,
+                    subProjectName: c,
+                    projrctID: pjId,
+                    firstStepTask: step1name,
+                    secondStepTask: text,
+                    taskContext:" ",
+                    stage:" ",
+                },
+                success: function (result) {
+                    fillTable(result);
+                },
+                error: function (xhr, exception) {
+                    alert('getTaskInfo error');
+                    return false;
+                }
+            });
+            e2[0].classList.remove("btn_add2ndtask");
+        }
+        $('#addTaskModal').modal('hide');
+       
+       
+     }
+
+    function setTaskOptions(e) {
+
+        var id = $(e).attr('id');
+        var modalTitle='';
+        var urlStr='';
+        var select= document.getElementById('taskOptions');
+        var actionStr='';
+        var length = select.options.length;
+        var subPJIdStr='';
+        for (i = length - 1; i >= 0; i--) {
+                select.options[i] = null;
+            }
+        if (id == 'btnAddFirstStepTask')
+        {
+            modalTitle='新增第一階作業';
+            urlStr = "@Url.Action("get1StepSysTasks","Home")";
+            subPJIdStr = $('#subProjects .active').data('subprojectid');
+            actionStr = 'firstStep';        
+        }
+        else
+        {
+            modalTitle='新增第二階作業';
+            urlStr = "@Url.Action("get2StepSysTasks","Home")";
+            e.classList.add("btn_add2ndtask");
+            subPJIdStr = e.parentNode.parentNode.querySelector('.tbTask1stStep').id;
+            actionStr = 'secondStep';          
+        }
+        document.getElementById('addTaskModalTitle').dataset.action = actionStr;
+        document.getElementById('addTaskModalTitle').innerHTML = modalTitle;
+        $.ajax({
+            type: "post",
+            url: urlStr,
+            data: { subProjectID: subPJIdStr },
+            success: function (result) {
+                var isInTaskArray = false;
+                for (var j = 0; j < result.length; j++) {
+                    isInTaskArray = false;
+                    var opt = document.createElement('option');
+                    if (id == 'btnAddFirstStepTask')
+                    {
+                        var tasks=document.getElementsByClassName('tbTask1stStep');
+                        for(var k=0;k<tasks.length;k++)
+                        {
+                            if (tasks[k].innerText == result[j].name)
+                             {
+                                 isInTaskArray = true;
+                                 break;
+                             }
+                        }
+                        opt.value = result[j].subProjectID.trim() + "," + result[j].taskId.trim();
+                    }
+                    else
+                    {
+
+                        opt.value = result[j].subProjectID.trim() + "," + result[j].task1StepID.trim()
+                            + "," + result[j].task2StepID.trim();
+                    }
+                    if (isInTaskArray)
+                        continue;
+                    opt.innerHTML = result[j].name;
+                    select.appendChild(opt);
+                    if (j == result.length - 1) {
+                        var opt2 = document.createElement('option');
+                        opt2.value = '99';
+                        opt2.innerHTML = '其他';
+                        select.appendChild(opt2);
+                        
+                    }
+                }
+
+            },
+            error: function (xhr, exception) {
+                alert('error12345678');
+                return false;
+            }
+        });
+        $('#addTaskModal').modal('show');
+    }
+ </script>
